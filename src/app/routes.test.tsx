@@ -12,9 +12,9 @@ describe('Маршруты приложения', () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Ваше пространство');
-    expect(screen.getByRole('link', { name: 'PrintLab — главная' })).toHaveAttribute('href', '/');
-    expect(screen.getByText('Приложение в разработке')).toBeVisible();
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Меньше материала.');
+    expect(screen.getByRole('link', { name: /Print Lab/ })).toHaveAttribute('href', '/');
+    expect(screen.getByText('Здесь появится результат')).toBeVisible();
   });
 
   it('показывает 404 для неизвестного адреса и позволяет вернуться домой', async () => {
@@ -28,7 +28,7 @@ describe('Маршруты приложения', () => {
     expect(screen.getByRole('heading', { name: 'Страница не найдена' })).toBeVisible();
     await user.click(screen.getByRole('link', { name: 'На главную' }));
 
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Ваше пространство');
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Меньше материала.');
     expect(screen.queryByText('Страница не найдена')).not.toBeInTheDocument();
   });
 });
