@@ -3,13 +3,13 @@ import { useEffect, useState } from 'react';
 export function useUploadNotice() {
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
-  const visible = Boolean(error) || message === 'Модель успешно загружена.';
+  const visible = Boolean(error) || message === 'Модель открыта.';
   function close() {
     setError('');
     setMessage('');
   }
   useEffect(() => {
-    if (!visible) return;
+    if (!visible || error) return;
     const timeout = window.setTimeout(() => {
       setError('');
       setMessage('');

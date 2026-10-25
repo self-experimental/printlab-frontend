@@ -1,22 +1,18 @@
-import type { OptimizationRequest } from '@/features/optimization/model/types';
+import type { OptimizationResult } from '@/features/optimization/model/types';
 import styles from '../styles/home-page.module.css';
-
-interface SubmittedRequestProps {
-  result: OptimizationRequest;
-}
-export function SubmittedRequest(props: SubmittedRequestProps) {
-  const { result } = props;
+export function SubmittedRequest({ result }: { result: OptimizationResult }) {
+  const r = result.request;
   return (
     <details className={styles['home-page__submitted']}>
       <summary>Параметры вашего запроса</summary>
       <p>
-        {result.file} · {result.material} · {result.load} Н · запас {result.factor} · слой{' '}
-        {result.layer} мм · {result.walls} периметра
+        {result.fileName} · {r.material} · {r.requiredLoadN} Н · запас {r.safetyFactor} ·{' '}
+        {r.testType}
       </p>
       <p>
-        {result.priority} · {result.orientation}
+        Слой: {r.layerHeightMm || 'подобрать'} · периметры: {r.perimeters || 'подобрать'} ·
+        ориентация: {r.printOrientation || 'подобрать'}
       </p>
-      <p>Требования: {result.requirements.join(', ') || 'Не выбраны'}</p>
     </details>
   );
 }

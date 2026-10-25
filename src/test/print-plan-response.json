@@ -1,0 +1,75 @@
+{
+  "printerName": "Bambu Lab A1 mini",
+  "nozzleDiameterMm": 0.4,
+  "bedType": "Текстурированная PEI-пластина",
+  "materialName": "Prusament PLA",
+  "engineVersion": "02.08.02.61",
+  "selectedCandidateId": "variant-1",
+  "candidates": [
+    {
+      "id": "variant-1",
+      "infillPercent": 15,
+      "perimeters": 2,
+      "layerHeightMm": 0.2,
+      "estimatedPrintTimeMin": 21.965087890625,
+      "estimatedMaterialG": 3.4933221340179443,
+      "meetsConstraints": true,
+      "infillPattern": "GYROID"
+    },
+    {
+      "id": "variant-2",
+      "infillPercent": 15,
+      "perimeters": 2,
+      "layerHeightMm": 0.16,
+      "estimatedPrintTimeMin": 25.75986124674479,
+      "estimatedMaterialG": 3.555927038192749,
+      "meetsConstraints": true,
+      "infillPattern": "GYROID"
+    },
+    {
+      "id": "variant-3",
+      "infillPercent": 15,
+      "perimeters": 3,
+      "layerHeightMm": 0.2,
+      "estimatedPrintTimeMin": 22.092266845703126,
+      "estimatedMaterialG": 4.060831546783447,
+      "meetsConstraints": true,
+      "infillPattern": "GYROID"
+    },
+    {
+      "id": "variant-4",
+      "infillPercent": 25,
+      "perimeters": 2,
+      "layerHeightMm": 0.2,
+      "estimatedPrintTimeMin": 22.49443155924479,
+      "estimatedMaterialG": 4.2705206871032715,
+      "meetsConstraints": true,
+      "infillPattern": "GYROID"
+    },
+    {
+      "id": "variant-5",
+      "infillPercent": 25,
+      "perimeters": 3,
+      "layerHeightMm": 0.16,
+      "estimatedPrintTimeMin": 26.61996866861979,
+      "estimatedMaterialG": 4.771489143371582,
+      "meetsConstraints": true,
+      "infillPattern": "GYROID"
+    },
+    {
+      "id": "variant-6",
+      "infillPercent": 35,
+      "perimeters": 3,
+      "layerHeightMm": 0.2,
+      "estimatedPrintTimeMin": 23.565736897786458,
+      "estimatedMaterialG": 5.3910908699035645,
+      "meetsConstraints": true,
+      "infillPattern": "GYROID"
+    }
+  ],
+  "warnings": [
+    "Время и расход — оценка Bambu Studio для A1 mini с соплом 0,4 мм. Использован универсальный профиль материала с плотностью и температурой из выбранного паспорта; точность зависит от калибровки и условий печати.",
+    "Прочность и допустимая нагрузка детали в этом режиме не рассчитываются. Вращение в окне просмотра не меняет ориентацию печати из STL."
+  ],
+  "explanation": "Выбран лучший из 6 рассчитанных вариантов по вашему приоритету и ограничениям. Расход включает сгенерированные поддержки, а время — подготовку принтера по профилю слайсера."
+}

@@ -6,11 +6,25 @@ import { ModelPanel } from './ui/model-panel';
 import { OptimizationForm } from './ui/optimization-form';
 import { OptimizationResults } from './ui/optimization-results';
 import { SubmittedRequest } from './ui/submitted-request';
+import { PrintPlanForm } from './ui/print-plan-form';
+import { PrintPlanResults } from './ui/print-plan-results';
 import styles from './styles/home-page.module.css';
 
 export function HomePage() {
-  const { light, upload, notice, model, optimization, toggleTheme, openUpload, submit, reset } =
-    useHomePage();
+  const {
+    light,
+    upload,
+    notice,
+    model,
+    optimization,
+    printPlan,
+    mode,
+    changeMode,
+    toggleTheme,
+    openUpload,
+    submit,
+    reset,
+  } = useHomePage();
   return (
     <div className={[styles['home-page'], light ? styles['home-page--light'] : ''].join(' ')}>
       <HomeHeader
@@ -36,6 +50,7 @@ export function HomePage() {
           type="file"
           accept=".stl"
           aria-label="Выберите STL-модель"
+          disabled={model.loading}
           onChange={(event) => {
             void model.readFile(event);
           }}
@@ -49,14 +64,60 @@ export function HomePage() {
         <div className={styles['home-page__workspace']}>
           <ModelPanel
             model={model.model}
+            file={model.file}
             fileName={model.fileName}
             loading={model.loading}
             onRemove={model.remove}
           />
-          <OptimizationForm loading={model.loading} onSubmit={submit} onChange={reset} />
+          <div className={styles['home-page__calculation-panel']}>
+            <label className={styles['home-page__mode']}>
+              Режим расчёта
+              <select
+                aria-label="Режим расчёта"
+                value={mode}
+                onChange={(event) => {
+                  changeMode(event.currentTarget.value === 'LOAD' ? 'LOAD' : 'PRINT');
+                }}
+              >
+                <option value="PRINT">Параметры печати · A1 mini</option>
+                <option value="LOAD">Нагрузка по испытаниям образцов</option>
+              </select>
+            </label>
+            {mode === 'PRINT' ? (
+              <PrintPlanForm
+                loading={model.loading || printPlan.loading}
+                hasModel={Boolean(model.file)}
+                calculated={Boolean(printPlan.result)}
+                onSubmit={submit}
+                onChange={reset}
+              />
+            ) : (
+              <OptimizationForm
+                loading={model.loading || optimization.loading}
+                hasModel={Boolean(model.file)}
+                calculated={Boolean(optimization.result)}
+                onSubmit={submit}
+                onChange={reset}
+              />
+            )}
+          </div>
         </div>
-        <OptimizationResults result={optimization.result} />
-        {optimization.result && <SubmittedRequest result={optimization.result} />}
+        {mode === 'PRINT' ? (
+          <PrintPlanResults
+            result={printPlan.result}
+            loading={printPlan.loading}
+            error={printPlan.error}
+          />
+        ) : (
+          <OptimizationResults
+            result={optimization.result}
+            loading={optimization.loading}
+            error={optimization.error}
+          />
+        )}
+        {mode === 'LOAD' && optimization.result && (
+          <SubmittedRequest result={optimization.result} />
+        )}
       </main>
       <footer className={styles['home-page__footer']}>
         <span>

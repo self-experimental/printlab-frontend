@@ -1,1 +1,33 @@
-npx --no-install lint-staged
+# Git launched by an editor may inherit an older Node than its terminal.
+has_project_node() {
+  node -e '
+    const fs = require("node:fs");
+    const required = fs.readFileSync(".nvmrc", "utf8").trim().replace(/^v/, "").split(".").map(Number);
+    const current = process.versions.node.split(".").map(Number);
+    const supported = current[0] === required[0] &&
+      (current[1] > required[1] || (current[1] === required[1] && current[2] >= required[2]));
+    process.exit(supported ? 0 : 1);
+  ' >/dev/null 2>&1
+}
+
+required_node=$(cat .nvmrc)
+if ! has_project_node; then
+  project_node_bin="${NVM_DIR:-$HOME/.nvm}/versions/node/v${required_node#v}/bin"
+  if [ -x "$project_node_bin/node" ]; then
+    export PATH="$project_node_bin:$PATH"
+  fi
+fi
+
+if ! has_project_node; then
+  printf '\nДля проверок перед коммитом нужен Node.js %s (или более новая версия той же основной ветки).\n' "$required_node" >&2
+  printf 'В терминале фронта выполните: nvm install && nvm use\n' >&2
+  printf 'Если используете другой менеджер Node, выберите версию из .node-version и перезапустите VS Code.\n\n' >&2
+  exit 1
+fi
+
+if [ ! -x ./node_modules/.bin/lint-staged ]; then
+  printf 'Не найдены зависимости фронта. Выполните npm ci на нужной версии Node.js.\n' >&2
+  exit 1
+fi
+
+exec ./node_modules/.bin/lint-staged

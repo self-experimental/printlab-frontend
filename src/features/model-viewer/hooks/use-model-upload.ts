@@ -1,7 +1,8 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { ChangeEvent } from 'react';
 import { MAX_FILE_SIZE, parseStl } from '../stl';
 import type { Model } from '../stl';
+import { uploadErrors } from '@/shared/api/errors';
 
 interface ModelUploadOptions {
   onReset: () => void;
@@ -10,50 +11,63 @@ interface ModelUploadOptions {
 }
 export function useModelUpload({ onReset, onSuccess, onError }: ModelUploadOptions) {
   const [model, setModel] = useState<Model | null>(null);
-  const [fileName, setFileName] = useState('');
+  const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
-  const requestId = useRef(0);
+  const sequence = useRef(0);
+  const pending = useRef(false);
+  useEffect(
+    () => () => {
+      sequence.current++;
+    },
+    [],
+  );
   async function readFile(event: ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
-    if (!file) return;
-    const id = ++requestId.current;
+    const selected = event.target.files?.[0];
     event.target.value = '';
-    setLoading(false);
+    if (!selected || pending.current) return;
     onReset();
-    setModel(null);
-    setFileName('');
-    if (!/\.stl$/i.test(file.name)) {
-      onError('Выберите файл с расширением .stl.');
+    if (!/\.stl$/i.test(selected.name)) {
+      onError(uploadErrors.WRONG_FILE_TYPE);
       return;
     }
-    if (file.size > MAX_FILE_SIZE) {
-      onError('Файл больше 15 МБ. Выберите модель меньшего размера.');
+    if (selected.size === 0) {
+      onError(uploadErrors.EMPTY_FILE);
       return;
     }
+    if (selected.size > MAX_FILE_SIZE) {
+      onError(uploadErrors.FILE_TOO_LARGE);
+      return;
+    }
+    const id = ++sequence.current;
+    pending.current = true;
     setLoading(true);
     try {
-      const parsed = parseStl(await file.arrayBuffer());
-      if (requestId.current !== id) return;
+      const bytes = await selected.arrayBuffer().catch((error: unknown) => {
+        throw new Error('Не удалось прочитать файл. Выберите его заново.', { cause: error });
+      });
+      if (sequence.current !== id) return;
+      const parsed = parseStl(bytes);
       setModel(parsed);
-      setFileName(file.name);
-      onSuccess('Модель успешно загружена.');
-    } catch {
-      if (requestId.current === id)
-        onError(
-          'Не удалось загрузить модель. Проверьте STL: до 15 МБ, до 100 000 граней, корректные координаты.',
-        );
+      setFile(selected);
+      onSuccess('Модель открыта.');
+    } catch (error) {
+      if (sequence.current === id)
+        onError(error instanceof Error ? error.message : 'Не удалось открыть модель.');
     } finally {
-      if (requestId.current === id) {
+      if (sequence.current === id) {
+        pending.current = false;
         setLoading(false);
-        event.target.value = '';
       }
     }
   }
   function remove() {
+    sequence.current++;
+    pending.current = false;
+    setLoading(false);
     setModel(null);
-    setFileName('');
+    setFile(null);
     onReset();
-    onSuccess('Модель удалена.');
+    onSuccess('Модель убрана из просмотра.');
   }
-  return { model, fileName, loading, readFile, remove };
+  return { model, file, fileName: file?.name ?? '', loading, readFile, remove };
 }

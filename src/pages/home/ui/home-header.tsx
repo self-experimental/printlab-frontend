@@ -2,6 +2,7 @@ import sunUrl from '@/static/icons/sun.svg';
 import moonUrl from '@/static/icons/moon.svg';
 import { PrimaryButton } from './primary-button';
 import { BrandLogo } from './brand-logo';
+import { Icon } from '@/shared/ui/icon';
 import styles from '../styles/home-page.module.css';
 
 interface HomeHeaderProps {
@@ -30,8 +31,13 @@ export function HomeHeader(props: HomeHeaderProps) {
         >
           <img src={light ? moonUrl : sunUrl} alt="" aria-hidden="true" />
         </button>
-        <PrimaryButton onClick={onUpload} disabled={loading}>
-          ↑ <span>{loading ? 'Чтение STL…' : 'Загрузить модель'}</span>
+        <PrimaryButton
+          onClick={onUpload}
+          disabled={loading}
+          className={styles['home-page__upload-button']}
+        >
+          <Icon name="upload" />
+          <span>{loading ? 'Загрузка…' : 'Загрузить модель'}</span>
         </PrimaryButton>
       </div>
     </header>
