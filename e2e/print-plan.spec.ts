@@ -54,6 +54,21 @@ test('при занятости сервера разрешает повтори
   await expect(page.getByRole('table')).toHaveCount(0);
 });
 
+test('сохраняет готовые варианты и явно отмечает неполный подбор', async ({ page }, testInfo) => {
+  await page.route('**/api/print-plans/analyze-stl', (route) =>
+    route.fulfill({ json: { ...response, candidates: response.candidates.slice(0, 5) } }),
+  );
+  await page.goto('/');
+  await page.getByLabel('Выберите STL-модель').setInputFiles('fixtures/stepped-block.stl');
+  await expect(page.getByText('stepped-block.stl', { exact: true })).toBeVisible();
+  await page.getByRole('button', { name: 'Запустить оптимизацию' }).click();
+  await expect(page.getByRole('table')).toBeVisible();
+  await expect(page.getByText('Сравнили 5 из 6 вариантов')).toBeVisible();
+  await expect(page.getByRole('row')).toHaveCount(6);
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await page.screenshot({ path: testInfo.outputPath('partial-print-plan.png'), fullPage: true });
+});
+
 test('настоящий Bambu Studio рассчитывает модель вне базы и учитывает ограничения', async ({
   page,
 }) => {
@@ -61,20 +76,20 @@ test('настоящий Bambu Studio рассчитывает модель вн
     process.env.E2E_BAMBU !== '1',
     'Нужны локальный бэк и Bambu Studio; E2E_BAMBU=1, --workers=1',
   );
-  test.setTimeout(120_000);
+  test.setTimeout(480_000);
   await page.unroute('**/api/materials');
   await page.goto('/');
   await page.getByLabel('Выберите STL-модель').setInputFiles('fixtures/stepped-block.stl');
   await expect(page.getByText('stepped-block.stl', { exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Закрыть уведомление' }).click();
   await page.getByRole('button', { name: 'Запустить оптимизацию' }).click();
-  await expect(page.getByRole('table')).toBeVisible({ timeout: 60_000 });
+  await expect(page.getByRole('table')).toBeVisible({ timeout: 200_000 });
   await expect(page.getByRole('row')).toHaveCount(7);
   await expect(page.getByText('Рекомендуем', { exact: true })).toBeVisible();
   await page.getByText('Как получен расчёт', { exact: true }).click();
   await expect(page.getByText(/Prusament PLA · Bambu Studio/)).toBeVisible();
   await page.getByLabel('Максимальный расход, г', { exact: true }).fill('0.1');
   await page.getByRole('button', { name: 'Запустить оптимизацию' }).click();
-  await expect(page.getByRole('alert')).toContainText('не вписываются', { timeout: 60_000 });
+  await expect(page.getByRole('alert')).toContainText('не вписываются', { timeout: 200_000 });
   await expect(page.getByRole('table')).toHaveCount(0);
 });

@@ -50,6 +50,21 @@ it('по умолчанию подбирает печать A1 mini, не отп
   expect(screen.getByLabelText('Максимальная нагрузка, Н')).toBeVisible();
 });
 
+it('явно показывает неполное сравнение без строк для нерассчитанных вариантов', async () => {
+  vi.mocked(fetch).mockResolvedValue(
+    new Response(JSON.stringify({ ...response, candidates: response.candidates.slice(0, 5) })),
+  );
+  const user = userEvent.setup();
+  render(<HomePage />);
+  upload();
+  await screen.findByText('part.stl');
+  await user.click(screen.getByRole('button', { name: 'Запустить оптимизацию' }));
+  await screen.findByRole('table');
+  expect(screen.getByText('Сравнили 5 из 6 вариантов')).toBeVisible();
+  expect(screen.getByText(/Рекомендация выбрана среди готовых вариантов/)).toBeVisible();
+  expect(screen.getAllByRole('row')).toHaveLength(6);
+});
+
 it('отменяет устаревший запрос при смене параметров и не запускает повторный при двойном нажатии', async () => {
   let finish: (r: Response) => void = () => undefined;
   vi.mocked(fetch).mockImplementation(

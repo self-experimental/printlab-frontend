@@ -14,6 +14,8 @@ const request: PrintPlanRequest = {
 };
 const file = new File(['stl'], 'part.stl');
 afterEach(() => {
+  vi.useRealTimers();
+  vi.restoreAllMocks();
   vi.unstubAllGlobals();
 });
 it('отправляет один файл и параметры и читает только проверенный результат', async () => {
@@ -27,7 +29,7 @@ it('отправляет один файл и параметры и читает
 it.each([
   [429, 'SLICER_BUSY', 'другой расчёт'],
   [503, 'SLICER_UNAVAILABLE', 'не настроен'],
-  [504, 'SLICE_TIMEOUT', 'слишком много времени'],
+  [504, 'SLICE_TIMEOUT', 'отведённое время'],
   [422, 'SLICE_FAILED', 'экспортируйте STL'],
   [422, 'MATERIAL_UNSUPPORTED', 'PLA, PETG'],
   [422, 'MODEL_DOES_NOT_FIT', '180 × 180'],
@@ -54,6 +56,10 @@ it.each([
   null,
   {},
   { ...fixture, candidates: [] },
+  { ...fixture, plannedCandidateCount: 0 },
+  { ...fixture, plannedCandidateCount: 2 },
+  { ...fixture, plannedCandidateCount: 1.5 },
+  { ...fixture, plannedCandidateCount: 99 },
   { ...fixture, candidates: [{ ...fixture.candidates[0], estimatedMaterialG: 0 }] },
   { ...fixture, selectedCandidateId: 'missing' },
 ])('отклоняет недостоверный ответ %#', async (value) => {
@@ -72,6 +78,37 @@ it('объясняет сеть, таймаут и сохраняет отмен
   await expect(calculatePrintPlan(file, request, aborted.signal)).rejects.toThrow('network');
   vi.spyOn(AbortSignal, 'timeout').mockReturnValue(aborted.signal);
   await expect(calculatePrintPlan(file, request, new AbortController().signal)).rejects.toThrow(
-    'за минуту',
+    'Ответ сервера не получен',
   );
+});
+
+it('дожидается расчёта дольше минуты без повторного запроса', async () => {
+  vi.useFakeTimers();
+  vi.spyOn(AbortSignal, 'timeout').mockImplementation((milliseconds) => {
+    const controller = new AbortController();
+    setTimeout(() => {
+      controller.abort();
+    }, milliseconds);
+    return controller.signal;
+  });
+  vi.stubGlobal(
+    'fetch',
+    vi.fn(
+      (_url: string, options: RequestInit) =>
+        new Promise<Response>((resolve, reject) => {
+          options.signal?.addEventListener('abort', () => {
+            reject(new Error('timeout'));
+          });
+          setTimeout(() => {
+            resolve(new Response(JSON.stringify(fixture)));
+          }, 70_000);
+        }),
+    ),
+  );
+  const result = expect(
+    calculatePrintPlan(file, request, new AbortController().signal),
+  ).resolves.toEqual(fixture);
+  await vi.advanceTimersByTimeAsync(70_000);
+  await result;
+  expect(fetch).toHaveBeenCalledTimes(1);
 });

@@ -181,6 +181,17 @@
   gap: 16px;
   margin: 0 20px 24px;
 }
+.home-page__partial-result {
+  margin: 0 20px 20px;
+  padding: 12px;
+  border: 1px solid var(--orange);
+  border-radius: 8px;
+  color: var(--color-text);
+  background: var(--control-background);
+}
+.home-page__partial-result p {
+  margin: 8px 0 0;
+}
 .home-page__print-summary > div {
   display: flex;
   flex-direction: column;

@@ -25,6 +25,7 @@ export interface PrintPlanResponse {
   materialName: string;
   engineVersion: string;
   selectedCandidateId: string;
+  plannedCandidateCount: number;
   candidates: PrintCandidate[];
   warnings: string[];
   explanation: string;
