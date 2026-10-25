@@ -1,3 +1,4 @@
+import { Alert, Loader, Paper } from '@mantine/core';
 import type { OptimizationResult } from '@/features/optimization/model/types';
 import { ResultSummary } from './result-summary';
 import { ExperimentChart } from './experiment-chart';
@@ -10,7 +11,9 @@ interface OptimizationResultsProps {
 }
 export function OptimizationResults({ result, loading, error }: OptimizationResultsProps) {
   return (
-    <section
+    <Paper
+      component="section"
+      withBorder
       className={[styles['home-page__panel'], styles['home-page__results']].join(' ')}
       aria-labelledby="results-heading"
       aria-busy={loading}
@@ -27,13 +30,13 @@ export function OptimizationResults({ result, loading, error }: OptimizationResu
       </div>
       {loading ? (
         <div className={styles['home-page__empty-results']} role="status">
+          <Loader size="sm" style={{ flexShrink: 0 }} />
           <p>Проверяем модель и подбираем параметры…</p>
         </div>
       ) : error ? (
-        <div className={styles['home-page__calculation-error']} role="alert">
-          <strong>Не удалось подобрать параметры</strong>
+        <Alert color="red" className={styles['home-page__calculation-error']}>
           <p>{error}</p>
-        </div>
+        </Alert>
       ) : result ? (
         <>
           <div className={styles['home-page__result-grid']}>
@@ -57,6 +60,6 @@ export function OptimizationResults({ result, loading, error }: OptimizationResu
           </div>
         </div>
       )}
-    </section>
+    </Paper>
   );
 }

@@ -1,4 +1,5 @@
 import { ModelViewer } from '@/features/model-viewer/model-viewer';
+import { Badge, Button, Loader, Paper } from '@mantine/core';
 import type { Model } from '@/features/model-viewer/stl';
 import { formatFileSize, formatModelInfo } from '@/features/model-viewer/utils/format-model-info';
 import { Icon } from '@/shared/ui/icon';
@@ -14,23 +15,29 @@ interface ModelPanelProps {
 export function ModelPanel(props: ModelPanelProps) {
   const { model, file, fileName, loading, onRemove } = props;
   return (
-    <section
+    <Paper
+      component="section"
+      withBorder
       className={[styles['home-page__panel'], styles['home-page__model-panel']].join(' ')}
       aria-labelledby="model-heading"
     >
       <div className={styles['home-page__panel-header']}>
         <div>
           <span className={styles['home-page__step']}>01 / ГЕОМЕТРИЯ</span>
-          <h2 id="model-heading">3D-модель</h2>
+          <h1 id="model-heading">3D-модель</h1>
           <p>Просмотр загруженной STL-модели</p>
         </div>
-        <span className={styles['home-page__file-badge']}>{model ? 'STL' : 'ПРИМЕР'}</span>
+        <Badge variant="light" color={model ? 'teal' : 'gray'}>
+          {model ? 'STL' : 'Нет файла'}
+        </Badge>
       </div>
       <div className={styles['home-page__viewport']} aria-busy={loading}>
         {model ? (
           <ModelViewer key={fileName} model={model} />
         ) : (
-          <div className={styles['home-page__model-placeholder']} aria-hidden="true" />
+          <div className={styles['home-page__model-placeholder']} aria-hidden="true">
+            {loading && <Loader size="sm" />}
+          </div>
         )}
       </div>
       <div className={styles['home-page__model-footer']}>
@@ -51,17 +58,19 @@ export function ModelPanel(props: ModelPanelProps) {
           <p aria-live="polite">{loading ? 'Открываем модель…' : ''}</p>
         </div>
         {file && (
-          <button
+          <Button
+            color="red"
+            variant="filled"
+            leftSection={<Icon name="close" />}
             type="button"
             className={styles['home-page__remove-button']}
             onClick={onRemove}
             disabled={loading}
           >
-            <Icon name="close" />
             <span>Убрать из просмотра</span>
-          </button>
+          </Button>
         )}
       </div>
-    </section>
+    </Paper>
   );
 }

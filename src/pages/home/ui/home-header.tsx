@@ -1,5 +1,6 @@
 import sunUrl from '@/static/icons/sun.svg';
 import moonUrl from '@/static/icons/moon.svg';
+import { ActionIcon } from '@mantine/core';
 import { PrimaryButton } from './primary-button';
 import { BrandLogo } from './brand-logo';
 import { Icon } from '@/shared/ui/icon';
@@ -23,20 +24,21 @@ export function HomeHeader(props: HomeHeaderProps) {
         </span>
       </a>
       <div className={styles['home-page__header-actions']}>
-        <button
+        <ActionIcon
           type="button"
           className={styles['home-page__theme']}
           onClick={onToggleTheme}
           aria-label={light ? 'Включить тёмную тему' : 'Включить светлую тему'}
         >
           <img src={light ? moonUrl : sunUrl} alt="" aria-hidden="true" />
-        </button>
+        </ActionIcon>
         <PrimaryButton
           onClick={onUpload}
           disabled={loading}
+          loading={loading}
+          leftSection={<Icon name="upload" />}
           className={styles['home-page__upload-button']}
         >
-          <Icon name="upload" />
           <span>{loading ? 'Загрузка…' : 'Загрузить модель'}</span>
         </PrimaryButton>
       </div>

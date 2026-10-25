@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react';
+import { useMantineColorScheme } from '@mantine/core';
 import type { SyntheticEvent } from 'react';
 import { useModelUpload } from '@/features/model-viewer/hooks/use-model-upload';
 import { useOptimization } from '@/features/optimization/hooks/use-optimization';
@@ -6,7 +7,8 @@ import { usePrintPlan } from '@/features/print-plan/hooks/use-print-plan';
 import { useUploadNotice } from './use-upload-notice';
 
 export function useHomePage() {
-  const [light, setLight] = useState(false);
+  const { colorScheme, toggleColorScheme } = useMantineColorScheme();
+  const light = colorScheme === 'light';
   const upload = useRef<HTMLInputElement>(null);
   const notice = useUploadNotice();
   const optimization = useOptimization();
@@ -23,7 +25,7 @@ export function useHomePage() {
     onError: notice.setError,
   });
   function toggleTheme() {
-    setLight(!light);
+    toggleColorScheme();
   }
   function openUpload() {
     upload.current?.click();

@@ -15,7 +15,8 @@ test('локальный выбор без запросов, реальный р
       requests.push(request.url());
   });
   await page.goto('/');
-  await page.getByLabel('Режим расчёта', { exact: true }).selectOption('LOAD');
+  await page.getByRole('combobox', { name: 'Режим расчёта', exact: true }).click();
+  await page.getByRole('option', { name: 'Нагрузка по испытаниям образцов', exact: true }).click();
   await page.getByLabel('Выберите STL-модель').setInputFiles('fixtures/cube-20.stl');
   await expect(page.getByText('cube-20.stl', { exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Закрыть уведомление' }).click();
@@ -47,14 +48,16 @@ test('отсутствие подходящих вариантов и экспе
   page,
 }) => {
   await page.goto('/');
-  await page.getByLabel('Режим расчёта', { exact: true }).selectOption('LOAD');
+  await page.getByRole('combobox', { name: 'Режим расчёта', exact: true }).click();
+  await page.getByRole('option', { name: 'Нагрузка по испытаниям образцов', exact: true }).click();
   await page.getByLabel('Выберите STL-модель').setInputFiles('fixtures/cube-20.stl');
   await expect(page.getByText('cube-20.stl', { exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Закрыть уведомление' }).click();
   await page.getByRole('button', { name: 'Запустить оптимизацию' }).click();
   await expect(page.getByRole('alert')).toContainText('Ни один испытанный вариант');
   await expect(page.getByRole('table')).toHaveCount(0);
-  await page.getByLabel('Материал', { exact: true }).selectOption('prusament-petg');
+  await page.getByRole('combobox', { name: 'Материал', exact: true }).click();
+  await page.getByRole('option', { name: 'Prusament PETG', exact: true }).click();
   await page.getByRole('button', { name: 'Запустить оптимизацию' }).click();
   await expect(page.getByRole('alert')).toContainText('пока нет данных');
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
@@ -62,7 +65,8 @@ test('отсутствие подходящих вариантов и экспе
 
 test('произвольная модель не получает выдуманную рекомендацию', async ({ page }) => {
   await page.goto('/');
-  await page.getByLabel('Режим расчёта', { exact: true }).selectOption('LOAD');
+  await page.getByRole('combobox', { name: 'Режим расчёта', exact: true }).click();
+  await page.getByRole('option', { name: 'Нагрузка по испытаниям образцов', exact: true }).click();
   await page.getByLabel('Выберите STL-модель').setInputFiles('fixtures/triangle.stl');
   await expect(page.getByText('triangle.stl', { exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Закрыть уведомление' }).click();
@@ -73,7 +77,8 @@ test('произвольная модель не получает выдуман
 
 test('сервер отклоняет повреждённую грань с понятной подсказкой', async ({ page }) => {
   await page.goto('/');
-  await page.getByLabel('Режим расчёта', { exact: true }).selectOption('LOAD');
+  await page.getByRole('combobox', { name: 'Режим расчёта', exact: true }).click();
+  await page.getByRole('option', { name: 'Нагрузка по испытаниям образцов', exact: true }).click();
   const broken = Buffer.from(
     'solid x\nfacet normal 0 0 1 outer loop vertex 0 0 0 vertex 1 0 0 vertex 1 0 0 endloop endfacet\nendsolid x',
   );

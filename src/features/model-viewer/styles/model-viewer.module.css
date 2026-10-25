@@ -1,90 +1,65 @@
 .model-viewer {
   position: relative;
-  background: radial-gradient(ellipse at 50% 45%, #414b59 0%, #252d39 70%);
+  min-width: 0;
+  min-height: 0;
+  flex: 1;
+  background: radial-gradient(ellipse at 50% 45%, #303e50 0%, #172130 75%);
   border-radius: inherit;
   display: flex;
   flex-direction: column;
-  min-width: 0;
-  height: 100%;
 }
 .model-viewer__surface {
+  position: relative;
   display: block;
+  flex: 1 1 0;
+  min-height: 320px;
   width: 100%;
-  height: clamp(280px, 26vw, 460px);
-  flex: 1 0 280px;
+  height: 0;
   touch-action: none;
   user-select: none;
   cursor: grab;
-  border-radius: inherit;
+}
+.model-viewer__surface:focus-visible {
+  outline-offset: -4px;
 }
 .model-viewer__surface[data-dragging='true'] {
   cursor: grabbing;
 }
 .model-viewer__surface canvas {
+  position: absolute;
+  inset: 0;
   display: block;
   width: 100%;
   height: 100%;
 }
 .model-viewer__error {
-  padding: 1rem;
-  text-align: center;
-  line-height: 1.5;
-  font-size: 0.85rem;
-  color: var(--color-text);
-  background: var(--surface);
-}
-.model-viewer__error button {
-  min-height: 44px;
-  padding: 0.5rem 0.8rem;
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  color: var(--color-text);
-  background: var(--surface);
-  cursor: pointer;
+  margin: 12px;
 }
 .model-viewer__controls {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  padding: 0.25rem 0.75rem 1rem;
+  gap: 10px;
+  padding: 12px;
+  background: var(--surface);
+  border-top: 1px solid var(--color-border);
 }
 .model-viewer__group {
   display: flex;
-  gap: 0.25rem;
-}
-.model-viewer__controls button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.4rem;
-  padding: 0.5rem;
-  min-width: 40px;
-  min-height: 40px;
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  background: var(--surface);
-  color: var(--color-text);
-  font-size: 0.8rem;
-  line-height: 1.2;
-  cursor: pointer;
+  gap: 4px;
 }
 .model-viewer__controls svg {
   width: 18px;
   height: 18px;
   flex: 0 0 18px;
 }
-.model-viewer__controls button:hover {
-  border-color: var(--teal);
-  color: var(--teal);
-}
 @media (max-width: 650px) {
   .model-viewer__surface {
-    height: 280px;
+    min-height: 280px;
   }
-  .model-viewer__controls button {
-    min-width: 44px;
-    min-height: 44px;
+  .model-viewer__controls {
+    gap: 8px;
+    padding: 10px;
   }
 }

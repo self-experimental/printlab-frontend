@@ -1,3 +1,4 @@
+import { Select } from '@mantine/core';
 import { env } from '@/shared/config/env';
 import { useHomePage } from './hooks/use-home-page';
 import { HomeHeader } from './ui/home-header';
@@ -26,7 +27,7 @@ export function HomePage() {
     reset,
   } = useHomePage();
   return (
-    <div className={[styles['home-page'], light ? styles['home-page--light'] : ''].join(' ')}>
+    <div className={styles['home-page']}>
       <HomeHeader
         light={light}
         loading={model.loading}
@@ -34,15 +35,6 @@ export function HomePage() {
         onUpload={openUpload}
       />
       <main id="main-content" className={styles['home-page__main']}>
-        <div className={styles['home-page__intro']}>
-          <div>
-            <p className={styles['home-page__eyebrow']}>PRINTLAB / РАБОЧЕЕ ПРОСТРАНСТВО</p>
-            <h1>
-              Меньше материала.
-              <br className={styles['home-page__mobile-break']} /> Больше возможностей.
-            </h1>
-          </div>
-        </div>
         <input
           ref={upload}
           id="stl-upload"
@@ -69,20 +61,23 @@ export function HomePage() {
             loading={model.loading}
             onRemove={model.remove}
           />
-          <div className={styles['home-page__calculation-panel']}>
-            <label className={styles['home-page__mode']}>
-              Режим расчёта
-              <select
-                aria-label="Режим расчёта"
-                value={mode}
-                onChange={(event) => {
-                  changeMode(event.currentTarget.value === 'LOAD' ? 'LOAD' : 'PRINT');
-                }}
-              >
-                <option value="PRINT">Параметры печати · A1 mini</option>
-                <option value="LOAD">Нагрузка по испытаниям образцов</option>
-              </select>
-            </label>
+          <section
+            aria-label="Настройки расчёта"
+            className={styles['home-page__calculation-panel']}
+          >
+            <Select
+              className={styles['home-page__mode']}
+              label="Режим расчёта"
+              aria-label="Режим расчёта"
+              value={mode}
+              onChange={(value) => {
+                changeMode(value === 'LOAD' ? 'LOAD' : 'PRINT');
+              }}
+              data={[
+                { value: 'PRINT', label: 'Параметры печати · A1 mini' },
+                { value: 'LOAD', label: 'Нагрузка по испытаниям образцов' },
+              ]}
+            />
             {mode === 'PRINT' ? (
               <PrintPlanForm
                 loading={model.loading || printPlan.loading}
@@ -100,7 +95,7 @@ export function HomePage() {
                 onChange={reset}
               />
             )}
-          </div>
+          </section>
         </div>
         {mode === 'PRINT' ? (
           <PrintPlanResults
@@ -120,10 +115,7 @@ export function HomePage() {
         )}
       </main>
       <footer className={styles['home-page__footer']}>
-        <span>
-          {env.appName} <span aria-hidden="true">/</span> Print Lab
-        </span>
-        <span>Исследовательский проект · прототип интерфейса</span>
+        <span>{env.appName}</span>
       </footer>
     </div>
   );

@@ -12,13 +12,28 @@ test('новый режим отправляет STL только по кноп�
   let calculations = 0;
   await page.route('**/api/print-plans/analyze-stl', (route) => {
     calculations++;
+    expect(route.request().postData()).toContain('name="priority"\r\n\r\nMIN_TIME');
+    expect(route.request().postData()).toContain('name="materialProfileId"\r\n\r\nprusament-pla');
     return route.fulfill({ json: response });
   });
   await page.goto('/');
-  await expect(page.getByLabel('Режим расчёта')).toHaveValue('PRINT');
+  await expect(page.getByRole('combobox', { name: 'Режим расчёта', exact: true })).toHaveValue(
+    'Параметры печати · A1 mini',
+  );
   await page.getByLabel('Выберите STL-модель').setInputFiles('fixtures/stepped-block.stl');
   await expect(page.getByText('stepped-block.stl', { exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Закрыть уведомление' }).click();
+  const priority = page.getByRole('combobox', { name: 'Приоритет подбора', exact: true });
+  await priority.focus();
+  await priority.press('ArrowDown');
+  await expect(page.getByRole('listbox', { name: 'Приоритет подбора', exact: true })).toBeVisible();
+  await priority.press('ArrowUp');
+  await priority.press('Enter');
+  await expect(priority).toHaveValue('Минимальное время печати');
+  await expect(priority).toHaveAttribute('aria-expanded', 'false');
+  await priority.click();
+  await page.getByRole('option', { name: 'Минимальное время печати', exact: true }).click();
+  await expect(priority).toHaveValue('Минимальное время печати');
   expect(calculations).toBe(0);
   await page.getByRole('button', { name: 'Запустить оптимизацию' }).click();
   await expect(page.getByRole('table')).toBeVisible();
@@ -30,7 +45,8 @@ test('новый режим отправляет STL только по кноп�
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: testInfo.outputPath('print-plan.png'), fullPage: true });
-  await page.getByLabel('Качество поверхности').selectOption('0.28');
+  await page.getByRole('combobox', { name: 'Качество поверхности', exact: true }).click();
+  await page.getByRole('option', { name: 'Быстрое · слой до 0,28 мм', exact: true }).click();
   await expect(page.getByRole('table')).toHaveCount(0);
   expect(calculations).toBe(1);
 });

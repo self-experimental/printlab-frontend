@@ -1,3 +1,4 @@
+import { Notification } from '@mantine/core';
 import styles from '../styles/home-page.module.css';
 
 interface UploadNoticeProps {
@@ -6,35 +7,20 @@ interface UploadNoticeProps {
   visible: boolean;
   onClose: () => void;
 }
-export function UploadNotice(props: UploadNoticeProps) {
-  const { error, message, visible, onClose } = props;
-  return (
-    <>
-      {visible && (
-        <div
-          className={[
-            styles['home-page__toast'],
-            error ? styles['home-page__toast--error'] : '',
-          ].join(' ')}
-          role={error ? 'alert' : 'status'}
-        >
-          <span className={styles['home-page__toast-icon']} aria-hidden="true">
-            {error ? '!' : '✓'}
-          </span>
-          <div>
-            <strong>{error ? 'Не удалось открыть модель' : 'Модель открыта'}</strong>
-            <p>{error || message}</p>
-          </div>
-          <button type="button" aria-label="Закрыть уведомление" onClick={onClose}>
-            ×
-          </button>
-        </div>
-      )}
-      {!visible && (
-        <div role="status" className={styles['home-page__silent']}>
-          {message}
-        </div>
-      )}
-    </>
+export function UploadNotice({ error, message, visible, onClose }: UploadNoticeProps) {
+  return visible ? (
+    <Notification
+      role={error ? 'alert' : 'status'}
+      color={error ? 'red' : 'teal'}
+      className={styles['home-page__toast']}
+      onClose={onClose}
+      closeButtonProps={{ 'aria-label': 'Закрыть уведомление' }}
+    >
+      {error || message}
+    </Notification>
+  ) : (
+    <div role="status" className={styles['home-page__silent']}>
+      {message}
+    </div>
   );
 }

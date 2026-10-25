@@ -8,6 +8,13 @@ vi.mock('three', async (importOriginal) => {
   return { ...original, WebGLRenderer: MockWebGLRenderer };
 });
 
+Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
+  configurable: true,
+  value: () => {
+    /* Scrolling and dropdown positioning are tested in Playwright. */
+  },
+});
+
 Object.defineProperty(globalThis, 'ResizeObserver', {
   writable: true,
   value: class {
@@ -23,4 +30,21 @@ Object.defineProperty(globalThis, 'ResizeObserver', {
   },
 });
 
-afterEach(cleanup);
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  value: vi.fn().mockImplementation((query: string) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  })),
+});
+
+afterEach(() => {
+  cleanup();
+  localStorage.clear();
+});

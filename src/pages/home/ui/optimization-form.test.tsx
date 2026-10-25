@@ -1,4 +1,5 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
+import { render } from '@/test/render';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, expect, it, vi } from 'vitest';
 import { OptimizationForm } from './optimization-form';
@@ -25,7 +26,9 @@ const props = {
 it('показывает материалы с бэка и свойства конкретного продукта по запросу', async () => {
   const user = userEvent.setup();
   render(<OptimizationForm {...props} />);
-  await screen.findByRole('option', { name: 'Prusament PLA' });
+  await waitFor(() =>
+    expect(screen.getByRole('combobox', { name: 'Материал' })).toHaveValue('Prusament PLA'),
+  );
   expect(screen.getByRole('button', { name: 'Запустить оптимизацию' })).toBeEnabled();
   expect(screen.getByText('Испытания напечатанных образцов')).not.toBeVisible();
   await user.click(screen.getByText('Свойства материала и источник'));
@@ -36,13 +39,15 @@ it('показывает материалы с бэка и свойства ко
     'href',
     pla.source.url,
   );
-  await user.selectOptions(screen.getByLabelText('Материал'), 'esun-abs-plus');
+  await user.click(screen.getByRole('combobox', { name: 'Материал' }));
+  await user.click(screen.getByRole('option', { name: 'eSUN ABS+' }));
   await user.click(screen.getByText('Свойства материала и источник'));
   await user.click(screen.getByText('Данные испытаний'));
   expect(screen.getByText('Испытания литых образцов')).toBeVisible();
   expect(screen.getByText('40 МПа')).toBeVisible();
   expect(screen.queryByText('Условия испытаний:', { exact: false })).not.toBeInTheDocument();
-  await user.selectOptions(screen.getByLabelText('Материал'), 'prusament-pa11-cf');
+  await user.click(screen.getByRole('combobox', { name: 'Материал' }));
+  await user.click(screen.getByRole('option', { name: 'Prusament PA11 Carbon Fiber' }));
   await user.click(screen.getByText('Свойства материала и источник'));
   expect(screen.getByText('Закалённое сопло')).toBeVisible();
   expect(fetchMaterialCatalog).toHaveBeenCalledTimes(1);

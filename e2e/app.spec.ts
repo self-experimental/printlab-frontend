@@ -13,7 +13,7 @@ test('production-сборка открывает PrintLab без ошибок Ja
   await page.goto('/');
 
   await expect(page).toHaveTitle('PrintLab');
-  await expect(page.getByRole('heading', { level: 1 })).toContainText('Меньше материала.');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('3D-модель');
   await expect(page.getByText('Здесь появится результат')).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
     true,
@@ -30,7 +30,7 @@ test('прямая ссылка на неизвестный маршрут от�
   expect(accessibility.violations).toEqual([]);
   await page.getByRole('link', { name: 'На главную' }).click();
   await expect(page).toHaveURL('/');
-  await expect(page.getByRole('heading', { level: 1 })).toContainText('Меньше материала.');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('3D-модель');
   await page.reload();
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
 });
@@ -42,13 +42,14 @@ test('форма не делает запросов без модели и по�
   });
   await page.goto('/');
   await expect(page.getByRole('button', { name: 'Запустить оптимизацию' })).toBeDisabled();
-  await page.getByLabel('Материал', { exact: true }).selectOption('prusament-petg');
+  await page.getByRole('combobox', { name: 'Материал', exact: true }).click();
+  await page.getByRole('option', { name: 'Prusament PETG', exact: true }).click();
   expect(api).toEqual([]);
   await page.getByRole('button', { name: 'Включить светлую тему' }).click();
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
 });
 
-test('локальный просмотр STL и понятная ошибка повреждённого файла', async ({ page }) => {
+test('локальный просмотр STL и понятная ошибка повреждённого файла', async ({ page }, testInfo) => {
   const requests: string[] = [];
   page.on('request', (request) => {
     if (request.url().includes('/api/') && request.method() === 'POST')
@@ -57,7 +58,9 @@ test('локальный просмотр STL и понятная ошибка �
   await page.goto('/');
   await page.getByLabel('Выберите STL-модель').setInputFiles('fixtures/triangle.stl');
   await expect(page.getByText('triangle.stl', { exact: true })).toBeVisible();
-  await expect(page.getByRole('status')).toContainText('Модель открыта.');
+  await expect(page.getByRole('status')).toHaveText('Модель открыта.');
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await page.screenshot({ path: testInfo.outputPath('upload-success.png'), fullPage: true });
   await page.getByRole('button', { name: 'Закрыть уведомление' }).click();
   await page.getByRole('button', { name: 'Убрать из просмотра' }).click();
   await expect(page.getByRole('img', { name: 'Предпросмотр геометрии STL-модели' })).toHaveCount(0);
@@ -66,6 +69,29 @@ test('локальный просмотр STL и понятная ошибка �
     mimeType: 'application/octet-stream',
     buffer: Buffer.from('broken'),
   });
-  await expect(page.getByRole('alert')).toContainText('Не удалось');
+  await expect(page.getByRole('alert')).toHaveText(
+    'Не удалось открыть модель: файл повреждён или сохранён в неподдерживаемом формате. Экспортируйте модель в STL заново и загрузите её.',
+  );
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await page.screenshot({ path: testInfo.outputPath('upload-error.png'), fullPage: true });
   expect(requests).toEqual([]);
+});
+
+test('общая тема сохраняется при перезагрузке, компоненты доступны в обоих оформлениях', async ({
+  page,
+}, testInfo) => {
+  await page.goto('/');
+  await expect(page.getByRole('combobox', { name: 'Материал', exact: true })).toHaveValue(
+    'Prusament PLA',
+  );
+  await page.screenshot({ path: testInfo.outputPath('ui-kit-dark.png'), fullPage: true });
+  await page.getByRole('button', { name: 'Включить светлую тему' }).click();
+  await page.reload();
+  await expect(page.getByRole('button', { name: 'Включить тёмную тему' })).toBeVisible();
+  await expect(page.getByRole('combobox', { name: 'Материал', exact: true })).toBeEnabled();
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await page.screenshot({ path: testInfo.outputPath('ui-kit-light.png'), fullPage: true });
+  await page.getByRole('button', { name: 'Включить тёмную тему' }).click();
+  await page.reload();
+  await expect(page.getByRole('button', { name: 'Включить светлую тему' })).toBeVisible();
 });
