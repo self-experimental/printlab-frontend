@@ -35,15 +35,6 @@ export function HomePage() {
         onUpload={openUpload}
       />
       <main id="main-content" className={styles['home-page__main']}>
-        <div className={styles['home-page__intro']}>
-          <div>
-            <p className={styles['home-page__eyebrow']}>PRINTLAB / РАБОЧЕЕ ПРОСТРАНСТВО</p>
-            <h1>
-              Меньше материала.
-              <br className={styles['home-page__mobile-break']} /> Больше возможностей.
-            </h1>
-          </div>
-        </div>
         <input
           ref={upload}
           id="stl-upload"
@@ -70,7 +61,10 @@ export function HomePage() {
             loading={model.loading}
             onRemove={model.remove}
           />
-          <div className={styles['home-page__calculation-panel']}>
+          <section
+            aria-label="Настройки расчёта"
+            className={styles['home-page__calculation-panel']}
+          >
             <NativeSelect
               className={styles['home-page__mode']}
               label="Режим расчёта"
@@ -100,7 +94,7 @@ export function HomePage() {
                 onChange={reset}
               />
             )}
-          </div>
+          </section>
         </div>
         {mode === 'PRINT' ? (
           <PrintPlanResults
@@ -120,10 +114,7 @@ export function HomePage() {
         )}
       </main>
       <footer className={styles['home-page__footer']}>
-        <span>
-          {env.appName} <span aria-hidden="true">/</span> Print Lab
-        </span>
-        <span>Исследовательский проект · прототип интерфейса</span>
+        <span>{env.appName}</span>
       </footer>
     </div>
   );

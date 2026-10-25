@@ -1,6 +1,21 @@
+import { PNG } from 'pngjs';
+import pixelmatch from 'pixelmatch';
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 import catalog from '../src/test/material-catalog.json' with { type: 'json' };
+
+// Flexible canvas sizing can introduce imperceptible GPU/anti-aliasing differences.
+// Compare rendered pixels instead of PNG bytes; geometry must still match exactly
+// outside the small per-pixel color tolerance.
+function sameRenderedImage(actual: Buffer, expected: Buffer): boolean {
+  const a = PNG.sync.read(actual);
+  const b = PNG.sync.read(expected);
+  return (
+    a.width === b.width &&
+    a.height === b.height &&
+    pixelmatch(a.data, b.data, null, a.width, a.height, { threshold: 0.05 }) === 0
+  );
+}
 
 test.beforeEach(async ({ page }) => {
   await page.route('**/api/materials', (route) => route.fulfill({ json: catalog }));
@@ -30,14 +45,18 @@ test.beforeEach(async ({ page }) => {
   await expect(
     page.getByRole('img', { name: 'Предпросмотр геометрии STL-модели' }).locator('canvas'),
   ).toBeVisible();
+  await expect(
+    page.getByRole('img', { name: 'Предпросмотр геометрии STL-модели' }),
+  ).toHaveAttribute('aria-busy', 'false');
 });
 
 test('модель вращается мышью и клавиатурой, масштабируется колесом и сбрасывается', async ({
   page,
-}) => {
+}, testInfo) => {
   const surface = page.getByRole('img', { name: 'Предпросмотр геометрии STL-модели' });
   const points = () => surface.locator('canvas').screenshot();
   const initial = await points();
+  await testInfo.attach('viewer-initial', { body: initial, contentType: 'image/png' });
   await surface.scrollIntoViewIfNeeded();
   const bounds = await surface.boundingBox();
   if (!bounds) throw new Error('Область модели не видна');
@@ -47,16 +66,17 @@ test('модель вращается мышью и клавиатурой, ма
   await page.mouse.down();
   await page.mouse.move(x + 60, y + 45, { steps: 8 });
   await page.mouse.up();
-  expect(await points()).not.toEqual(initial);
+  await expect.poll(async () => (await points()).equals(initial)).toBe(false);
   const rotated = await points();
   await surface.press('ArrowUp');
-  expect(await points()).not.toEqual(rotated);
+  await expect.poll(async () => (await points()).equals(rotated)).toBe(false);
   const tilted = await points();
   await page.mouse.move(x, y);
   await page.mouse.wheel(0, -120);
-  await expect.poll(points).not.toEqual(tilted);
+  await expect.poll(async () => (await points()).equals(tilted)).toBe(false);
   await page.getByRole('button', { name: 'Сбросить вид' }).click();
-  expect(await points()).toEqual(initial);
+  await testInfo.attach('viewer-reset', { body: await points(), contentType: 'image/png' });
+  await expect.poll(async () => sameRenderedImage(await points(), initial)).toBe(true);
   await expect(page.getByRole('button', { name: 'Каркас' })).toHaveCount(0);
   await expect(page.getByLabel('Ракурс')).toHaveCount(0);
   await expect(surface.locator('text')).toHaveCount(0);
@@ -95,7 +115,7 @@ test('сенсорное вращение и щипок работают на м
     touchPoints: [{ x: x + 35, y: y + 30, id: 0 }],
   });
   await input.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
-  await expect.poll(points).not.toEqual(initial);
+  await expect.poll(async () => (await points()).equals(initial)).toBe(false);
   const rotated = await points();
   await input.send('Input.dispatchTouchEvent', {
     type: 'touchStart',
@@ -112,7 +132,7 @@ test('сенсорное вращение и щипок работают на м
     ],
   });
   await input.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
-  await expect.poll(points).not.toEqual(rotated);
+  await expect.poll(async () => (await points()).equals(rotated)).toBe(false);
   await input.detach();
 });
 

@@ -24,7 +24,7 @@ export function ModelPanel(props: ModelPanelProps) {
       <div className={styles['home-page__panel-header']}>
         <div>
           <span className={styles['home-page__step']}>01 / ГЕОМЕТРИЯ</span>
-          <h2 id="model-heading">3D-модель</h2>
+          <h1 id="model-heading">3D-модель</h1>
           <p>Просмотр загруженной STL-модели</p>
         </div>
         <Badge variant="light" color={model ? 'teal' : 'gray'}>

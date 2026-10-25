@@ -13,7 +13,7 @@ describe('Маршруты приложения', () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Меньше материала.');
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('3D-модель');
     expect(screen.getByRole('link', { name: /Print Lab/ })).toHaveAttribute('href', '/');
     expect(screen.getByText('Здесь появится результат')).toBeVisible();
   });
@@ -29,7 +29,7 @@ describe('Маршруты приложения', () => {
     expect(screen.getByRole('heading', { name: 'Страница не найдена' })).toBeVisible();
     await user.click(screen.getByRole('link', { name: 'На главную' }));
 
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Меньше материала.');
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('3D-модель');
     expect(screen.queryByText('Страница не найдена')).not.toBeInTheDocument();
   });
 });

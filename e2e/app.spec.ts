@@ -13,7 +13,7 @@ test('production-сборка открывает PrintLab без ошибок Ja
   await page.goto('/');
 
   await expect(page).toHaveTitle('PrintLab');
-  await expect(page.getByRole('heading', { level: 1 })).toContainText('Меньше материала.');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('3D-модель');
   await expect(page.getByText('Здесь появится результат')).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(
     true,
@@ -30,7 +30,7 @@ test('прямая ссылка на неизвестный маршрут от�
   expect(accessibility.violations).toEqual([]);
   await page.getByRole('link', { name: 'На главную' }).click();
   await expect(page).toHaveURL('/');
-  await expect(page.getByRole('heading', { level: 1 })).toContainText('Меньше материала.');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('3D-модель');
   await page.reload();
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
 });
