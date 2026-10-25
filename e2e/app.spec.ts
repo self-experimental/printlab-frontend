@@ -49,7 +49,7 @@ test('форма не делает запросов без модели и по�
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
 });
 
-test('локальный просмотр STL и понятная ошибка повреждённого файла', async ({ page }) => {
+test('локальный просмотр STL и понятная ошибка повреждённого файла', async ({ page }, testInfo) => {
   const requests: string[] = [];
   page.on('request', (request) => {
     if (request.url().includes('/api/') && request.method() === 'POST')
@@ -58,7 +58,9 @@ test('локальный просмотр STL и понятная ошибка �
   await page.goto('/');
   await page.getByLabel('Выберите STL-модель').setInputFiles('fixtures/triangle.stl');
   await expect(page.getByText('triangle.stl', { exact: true })).toBeVisible();
-  await expect(page.getByRole('status')).toContainText('Модель открыта.');
+  await expect(page.getByRole('status')).toHaveText('Модель открыта.');
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await page.screenshot({ path: testInfo.outputPath('upload-success.png'), fullPage: true });
   await page.getByRole('button', { name: 'Закрыть уведомление' }).click();
   await page.getByRole('button', { name: 'Убрать из просмотра' }).click();
   await expect(page.getByRole('img', { name: 'Предпросмотр геометрии STL-модели' })).toHaveCount(0);
@@ -67,7 +69,11 @@ test('локальный просмотр STL и понятная ошибка �
     mimeType: 'application/octet-stream',
     buffer: Buffer.from('broken'),
   });
-  await expect(page.getByRole('alert')).toContainText('Не удалось');
+  await expect(page.getByRole('alert')).toHaveText(
+    'Не удалось открыть модель: файл повреждён или сохранён в неподдерживаемом формате. Экспортируйте модель в STL заново и загрузите её.',
+  );
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await page.screenshot({ path: testInfo.outputPath('upload-error.png'), fullPage: true });
   expect(requests).toEqual([]);
 });
 

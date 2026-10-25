@@ -11,7 +11,6 @@ export function UploadNotice({ error, message, visible, onClose }: UploadNoticeP
   return visible ? (
     <Notification
       role={error ? 'alert' : 'status'}
-      title={error ? 'Не удалось открыть модель' : 'Модель открыта'}
       color={error ? 'red' : 'teal'}
       className={styles['home-page__toast']}
       onClose={onClose}

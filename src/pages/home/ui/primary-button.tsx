@@ -4,5 +4,5 @@ import type { ComponentPropsWithoutRef } from 'react';
 type PrimaryButtonProps = ButtonProps & ComponentPropsWithoutRef<'button'>;
 
 export function PrimaryButton({ className = '', type = 'button', ...props }: PrimaryButtonProps) {
-  return <Button {...props} type={type} className={className} />;
+  return <Button color="brandOrange.5" {...props} type={type} className={className} />;
 }

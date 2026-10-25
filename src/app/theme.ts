@@ -2,6 +2,18 @@ import { ActionIcon, Button, createTheme, Select, NumberInput, Paper } from '@ma
 
 export const theme = createTheme({
   colors: {
+    brandOrange: [
+      '#fff1e8',
+      '#ffdfcb',
+      '#ffc39f',
+      '#ffa76f',
+      '#f58c46',
+      '#ee7325',
+      '#eb6125',
+      '#df4422',
+      '#bd351c',
+      '#952b18',
+    ],
     dark: [
       '#edf1f7',
       '#c1cad6',

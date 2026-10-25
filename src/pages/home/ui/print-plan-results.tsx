@@ -41,11 +41,7 @@ export function PrintPlanResults({
           </p>
         </div>
       ) : error ? (
-        <Alert
-          color="red"
-          title="Не удалось подобрать параметры"
-          className={styles['home-page__calculation-error']}
-        >
+        <Alert color="red" className={styles['home-page__calculation-error']}>
           <p>{error}</p>
         </Alert>
       ) : response && selected ? (

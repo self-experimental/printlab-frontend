@@ -34,11 +34,7 @@ export function OptimizationResults({ result, loading, error }: OptimizationResu
           <p>Проверяем модель и подбираем параметры…</p>
         </div>
       ) : error ? (
-        <Alert
-          color="red"
-          title="Не удалось подобрать параметры"
-          className={styles['home-page__calculation-error']}
-        >
+        <Alert color="red" className={styles['home-page__calculation-error']}>
           <p>{error}</p>
         </Alert>
       ) : result ? (
