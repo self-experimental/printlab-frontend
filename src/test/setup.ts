@@ -8,6 +8,13 @@ vi.mock('three', async (importOriginal) => {
   return { ...original, WebGLRenderer: MockWebGLRenderer };
 });
 
+Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
+  configurable: true,
+  value: () => {
+    /* Scrolling and dropdown positioning are tested in Playwright. */
+  },
+});
+
 Object.defineProperty(globalThis, 'ResizeObserver', {
   writable: true,
   value: class {

@@ -1,4 +1,4 @@
-import { Alert, Button, NativeSelect, NumberInput, Paper } from '@mantine/core';
+import { Alert, Button, Select, NumberInput, Paper } from '@mantine/core';
 import type { SyntheticEvent } from 'react';
 import { useMaterialCatalog } from '@/features/materials/hooks/use-material-catalog';
 import { MaterialDetails } from '@/features/materials/ui/material-details';
@@ -37,46 +37,55 @@ export function PrintPlanForm({
       </div>
       <form onSubmit={onSubmit} onChange={onChange}>
         <div className={styles['home-page__fields']}>
-          <NativeSelect
+          <Select
             label="Материал"
             name="materialProfileId"
             aria-label="Материал"
-            value={materials.selected?.id ?? ''}
+            value={materials.selected?.id ?? null}
             disabled={!materials.catalog}
-            onChange={(event) => {
-              materials.select(event.currentTarget.value);
+            placeholder={materials.error ? 'Список недоступен' : 'Загружаем материалы…'}
+            onChange={(value) => {
+              if (value) materials.select(value);
+              onChange();
             }}
-          >
-            {!materials.catalog && (
-              <option value="">
-                {materials.error ? 'Список недоступен' : 'Загружаем материалы…'}
-              </option>
-            )}
-            {materials.catalog?.materials.map((material) => (
-              <option
-                key={material.id}
-                value={material.id}
-                disabled={!supportedFamilies.has(material.family)}
-              >
-                {material.name}
-                {!supportedFamilies.has(material.family) && ' — пока нет профиля'}
-              </option>
-            ))}
-          </NativeSelect>
-          <NativeSelect label="Приоритет подбора" name="priority" defaultValue="BALANCED">
-            <option value="BALANCED">Баланс времени и расхода</option>
-            <option value="MIN_MATERIAL">Минимальный расход материала</option>
-            <option value="MIN_TIME">Минимальное время печати</option>
-          </NativeSelect>
-          <NativeSelect label="Качество поверхности" name="layerHeightMm" defaultValue="0.2">
-            <option value="0.12">Детальное · слой до 0,12 мм</option>
-            <option value="0.2">Обычное · слой до 0,2 мм</option>
-            <option value="0.28">Быстрое · слой до 0,28 мм</option>
-          </NativeSelect>
-          <NativeSelect label="Поддержки" name="supportMode" defaultValue="AUTO">
-            <option value="AUTO">Подобрать автоматически</option>
-            <option value="NONE">Без поддержек</option>
-          </NativeSelect>
+            data={(materials.catalog?.materials ?? []).map((material) => ({
+              value: material.id,
+              label: `${material.name}${!supportedFamilies.has(material.family) ? ' — пока нет профиля' : ''}`,
+              disabled: !supportedFamilies.has(material.family),
+            }))}
+          />
+          <Select
+            label="Приоритет подбора"
+            name="priority"
+            defaultValue="BALANCED"
+            onChange={onChange}
+            data={[
+              { value: 'BALANCED', label: 'Баланс времени и расхода' },
+              { value: 'MIN_MATERIAL', label: 'Минимальный расход материала' },
+              { value: 'MIN_TIME', label: 'Минимальное время печати' },
+            ]}
+          />
+          <Select
+            label="Качество поверхности"
+            name="layerHeightMm"
+            defaultValue="0.2"
+            onChange={onChange}
+            data={[
+              { value: '0.12', label: 'Детальное · слой до 0,12 мм' },
+              { value: '0.2', label: 'Обычное · слой до 0,2 мм' },
+              { value: '0.28', label: 'Быстрое · слой до 0,28 мм' },
+            ]}
+          />
+          <Select
+            label="Поддержки"
+            name="supportMode"
+            defaultValue="AUTO"
+            onChange={onChange}
+            data={[
+              { value: 'AUTO', label: 'Подобрать автоматически' },
+              { value: 'NONE', label: 'Без поддержек' },
+            ]}
+          />
           <NumberInput
             label="Минимальное заполнение, %"
             aria-label="Минимальное заполнение, %"

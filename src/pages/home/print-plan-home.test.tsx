@@ -27,12 +27,19 @@ afterEach(() => {
 it('по умолчанию подбирает печать A1 mini, не отправляет файл до кнопки и показывает реальные варианты', async () => {
   const user = userEvent.setup();
   render(<HomePage />);
-  expect(screen.getByLabelText('Режим расчёта')).toHaveValue('PRINT');
+  expect(screen.getByRole('combobox', { name: 'Режим расчёта' })).toHaveValue(
+    'Параметры печати · A1 mini',
+  );
   expect(screen.getByRole('button', { name: 'Запустить оптимизацию' })).toBeDisabled();
   const file = upload();
   await screen.findByText('part.stl');
   expect(fetch).not.toHaveBeenCalled();
-  expect(screen.getByRole('option', { name: /Prusament ASA/ })).toBeDisabled();
+  await user.click(screen.getByRole('combobox', { name: 'Материал' }));
+  expect(screen.getByRole('option', { name: /Prusament ASA/ })).toHaveAttribute(
+    'aria-disabled',
+    'true',
+  );
+  await user.keyboard('{Escape}');
   await user.click(screen.getByRole('button', { name: 'Запустить оптимизацию' }));
   await screen.findByRole('table');
   expect(screen.getByText('3,49 г')).toBeVisible();
@@ -44,10 +51,12 @@ it('по умолчанию подбирает печать A1 mini, не отп
   expect((options.body as FormData).get('materialProfileId')).toBe('prusament-pla');
   await user.click(screen.getByText('Как получен расчёт'));
   expect(screen.getByText(/Prusament PLA · Bambu Studio/)).toBeVisible();
-  await user.selectOptions(screen.getByLabelText('Приоритет подбора'), 'MIN_TIME');
+  await user.click(screen.getByRole('combobox', { name: 'Приоритет подбора' }));
+  await user.click(screen.getByRole('option', { name: 'Минимальное время печати' }));
   expect(screen.queryByRole('table')).not.toBeInTheDocument();
   expect(fetch).toHaveBeenCalledTimes(1);
-  await user.selectOptions(screen.getByLabelText('Режим расчёта'), 'LOAD');
+  await user.click(screen.getByRole('combobox', { name: 'Режим расчёта' }));
+  await user.click(screen.getByRole('option', { name: 'Нагрузка по испытаниям образцов' }));
   expect(screen.getByLabelText('Максимальная нагрузка, Н')).toBeVisible();
 });
 
@@ -83,7 +92,8 @@ it('отменяет устаревший запрос при смене пар�
   expect(fetch).toHaveBeenCalledTimes(1);
   expect(screen.getByText(/Готовим модель и сравниваем/)).toBeVisible();
   const options = vi.mocked(fetch).mock.calls[0]?.[1];
-  await user.selectOptions(screen.getByLabelText('Качество поверхности'), '0.28');
+  await user.click(screen.getByRole('combobox', { name: 'Качество поверхности' }));
+  await user.click(screen.getByRole('option', { name: 'Быстрое · слой до 0,28 мм' }));
   expect(options?.signal?.aborted).toBe(true);
   await act(async () => {
     finish(new Response(JSON.stringify(response)));

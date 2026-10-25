@@ -1,4 +1,4 @@
-import { ActionIcon, Button, createTheme, NativeSelect, NumberInput, Paper } from '@mantine/core';
+import { ActionIcon, Button, createTheme, Select, NumberInput, Paper } from '@mantine/core';
 
 export const theme = createTheme({
   colors: {
@@ -24,7 +24,14 @@ export const theme = createTheme({
   components: {
     Button: Button.extend({ defaultProps: { size: 'md', fw: 600 } }),
     ActionIcon: ActionIcon.extend({ defaultProps: { size: 44, variant: 'default' } }),
-    NativeSelect: NativeSelect.extend({ defaultProps: { size: 'md' } }),
+    Select: Select.extend({
+      defaultProps: {
+        size: 'md',
+        allowDeselect: false,
+        rightSection: null,
+        rightSectionWidth: 0,
+      },
+    }),
     NumberInput: NumberInput.extend({
       defaultProps: { size: 'md', allowNegative: false, clampBehavior: 'none' },
     }),

@@ -23,7 +23,8 @@ function file(name = 'test.stl', content = source) {
 }
 function renderLoadPage() {
   const view = render(<HomePage />);
-  fireEvent.change(screen.getByLabelText('Режим расчёта'), { target: { value: 'LOAD' } });
+  fireEvent.click(screen.getByRole('combobox', { name: 'Режим расчёта' }));
+  fireEvent.click(screen.getByRole('option', { name: 'Нагрузка по испытаниям образцов' }));
   return view;
 }
 function upload(f: File | undefined) {
@@ -89,7 +90,8 @@ describe('Рабочий экран', () => {
     expect(body.get('safetyFactor')).toBe('2');
     await user.click(screen.getByText('Параметры вашего запроса'));
     expect(screen.getByText(/test.stl · PLA · 40 Н/)).toBeVisible();
-    await user.selectOptions(screen.getByLabelText('Материал'), 'prusament-petg');
+    await user.click(screen.getByRole('combobox', { name: 'Материал' }));
+    await user.click(screen.getByRole('option', { name: 'Prusament PETG' }));
     expect(screen.queryByRole('table')).not.toBeInTheDocument();
     expect(fetch).toHaveBeenCalledTimes(1);
     expect(screen.getByRole('button', { name: 'Запустить оптимизацию' })).toBeEnabled();
@@ -114,7 +116,8 @@ describe('Рабочий экран', () => {
     });
     expect(screen.getByRole('button', { name: 'Подбираем параметры…' })).toBeDisabled();
     const options = request.mock.calls[0]?.[1] as RequestInit;
-    await user.selectOptions(screen.getByLabelText('Материал'), 'prusament-petg');
+    await user.click(screen.getByRole('combobox', { name: 'Материал' }));
+    await user.click(screen.getByRole('option', { name: 'Prusament PETG' }));
     expect(options.signal?.aborted).toBe(true);
     resolveResponse(new Response(JSON.stringify(calculationResponse)));
     await act(async () => {

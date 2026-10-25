@@ -1,4 +1,4 @@
-import { NativeSelect } from '@mantine/core';
+import { Select } from '@mantine/core';
 import { env } from '@/shared/config/env';
 import { useHomePage } from './hooks/use-home-page';
 import { HomeHeader } from './ui/home-header';
@@ -65,18 +65,19 @@ export function HomePage() {
             aria-label="Настройки расчёта"
             className={styles['home-page__calculation-panel']}
           >
-            <NativeSelect
+            <Select
               className={styles['home-page__mode']}
               label="Режим расчёта"
               aria-label="Режим расчёта"
               value={mode}
-              onChange={(event) => {
-                changeMode(event.currentTarget.value === 'LOAD' ? 'LOAD' : 'PRINT');
+              onChange={(value) => {
+                changeMode(value === 'LOAD' ? 'LOAD' : 'PRINT');
               }}
-            >
-              <option value="PRINT">Параметры печати · A1 mini</option>
-              <option value="LOAD">Нагрузка по испытаниям образцов</option>
-            </NativeSelect>
+              data={[
+                { value: 'PRINT', label: 'Параметры печати · A1 mini' },
+                { value: 'LOAD', label: 'Нагрузка по испытаниям образцов' },
+              ]}
+            />
             {mode === 'PRINT' ? (
               <PrintPlanForm
                 loading={model.loading || printPlan.loading}

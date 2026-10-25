@@ -1,4 +1,4 @@
-import { Alert, Button, NativeSelect, NumberInput, Paper } from '@mantine/core';
+import { Alert, Button, Select, NumberInput, Paper } from '@mantine/core';
 import type { SyntheticEvent } from 'react';
 import { PrimaryButton } from './primary-button';
 import { useMaterialCatalog } from '@/features/materials/hooks/use-material-catalog';
@@ -36,33 +36,34 @@ export function OptimizationForm({
       <form onSubmit={onSubmit} onChange={onChange}>
         <input type="hidden" name="material" value={materials.selected?.family ?? ''} />
         <div className={styles['home-page__fields']}>
-          <NativeSelect
+          <Select
             label="Материал"
             name="materialProfileId"
             aria-label="Материал"
-            value={materials.selected?.id ?? ''}
+            value={materials.selected?.id ?? null}
             disabled={!materials.catalog}
-            onChange={(event) => {
-              materials.select(event.currentTarget.value);
+            placeholder={materials.error ? 'Список недоступен' : 'Загружаем материалы…'}
+            onChange={(value) => {
+              if (value) materials.select(value);
+              onChange();
             }}
-          >
-            {!materials.catalog && (
-              <option value="">
-                {materials.error ? 'Список недоступен' : 'Загружаем материалы…'}
-              </option>
-            )}
-            {materials.catalog?.materials.map((material) => (
-              <option key={material.id} value={material.id}>
-                {material.name}
-              </option>
-            ))}
-          </NativeSelect>
-          <NativeSelect label="Приоритет подбора" name="priority" defaultValue="MIN_WEIGHT">
-            <option value="MIN_WEIGHT">Минимальный расход материала</option>
-            <option value="MAX_STRENGTH">Максимальная нагрузка</option>
-            <option value="MIN_TIME">Минимальное время печати</option>
-            <option value="BALANCED">Баланс прочности и расхода</option>
-          </NativeSelect>
+            data={(materials.catalog?.materials ?? []).map((material) => ({
+              value: material.id,
+              label: material.name,
+            }))}
+          />
+          <Select
+            label="Приоритет подбора"
+            name="priority"
+            defaultValue="MIN_WEIGHT"
+            onChange={onChange}
+            data={[
+              { value: 'MIN_WEIGHT', label: 'Минимальный расход материала' },
+              { value: 'MAX_STRENGTH', label: 'Максимальная нагрузка' },
+              { value: 'MIN_TIME', label: 'Минимальное время печати' },
+              { value: 'BALANCED', label: 'Баланс прочности и расхода' },
+            ]}
+          />
           <NumberInput
             label="Максимальная нагрузка, Н"
             aria-label="Максимальная нагрузка, Н"
@@ -87,15 +88,27 @@ export function OptimizationForm({
             defaultValue="2"
             required
           />
-          <NativeSelect label="Тип испытания" name="testType" defaultValue="изгиб">
-            <option value="изгиб">Изгиб</option>
-            <option value="сжатие">Сжатие</option>
-          </NativeSelect>
-          <NativeSelect label="Ориентация печати" name="printOrientation" defaultValue="">
-            <option value="">Подобрать</option>
-            <option value="горизонтальная">Горизонтальная</option>
-            <option value="вертикальная">Вертикальная</option>
-          </NativeSelect>
+          <Select
+            label="Тип испытания"
+            name="testType"
+            defaultValue="изгиб"
+            onChange={onChange}
+            data={[
+              { value: 'изгиб', label: 'Изгиб' },
+              { value: 'сжатие', label: 'Сжатие' },
+            ]}
+          />
+          <Select
+            label="Ориентация печати"
+            name="printOrientation"
+            defaultValue=""
+            onChange={onChange}
+            data={[
+              { value: '', label: 'Подобрать' },
+              { value: 'горизонтальная', label: 'Горизонтальная' },
+              { value: 'вертикальная', label: 'Вертикальная' },
+            ]}
+          />
           <NumberInput
             label="Высота слоя, мм"
             aria-label="Высота слоя, мм"

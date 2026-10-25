@@ -42,7 +42,8 @@ test('форма не делает запросов без модели и по�
   });
   await page.goto('/');
   await expect(page.getByRole('button', { name: 'Запустить оптимизацию' })).toBeDisabled();
-  await page.getByLabel('Материал', { exact: true }).selectOption('prusament-petg');
+  await page.getByRole('combobox', { name: 'Материал', exact: true }).click();
+  await page.getByRole('option', { name: 'Prusament PETG', exact: true }).click();
   expect(api).toEqual([]);
   await page.getByRole('button', { name: 'Включить светлую тему' }).click();
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
@@ -74,12 +75,14 @@ test('общая тема сохраняется при перезагрузке
   page,
 }, testInfo) => {
   await page.goto('/');
-  await expect(page.getByLabel('Материал', { exact: true })).toHaveValue('prusament-pla');
+  await expect(page.getByRole('combobox', { name: 'Материал', exact: true })).toHaveValue(
+    'Prusament PLA',
+  );
   await page.screenshot({ path: testInfo.outputPath('ui-kit-dark.png'), fullPage: true });
   await page.getByRole('button', { name: 'Включить светлую тему' }).click();
   await page.reload();
   await expect(page.getByRole('button', { name: 'Включить тёмную тему' })).toBeVisible();
-  await expect(page.getByLabel('Материал', { exact: true })).toBeEnabled();
+  await expect(page.getByRole('combobox', { name: 'Материал', exact: true })).toBeEnabled();
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
   await page.screenshot({ path: testInfo.outputPath('ui-kit-light.png'), fullPage: true });
   await page.getByRole('button', { name: 'Включить тёмную тему' }).click();

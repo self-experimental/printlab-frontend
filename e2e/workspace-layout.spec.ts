@@ -7,7 +7,9 @@ test('рабочая область без лишних надписей, пан
 }, testInfo) => {
   await page.route('**/api/materials', (route) => route.fulfill({ json: catalog }));
   await page.goto('/');
-  await expect(page.getByLabel('Материал', { exact: true })).toHaveValue('prusament-pla');
+  await expect(page.getByRole('combobox', { name: 'Материал', exact: true })).toHaveValue(
+    'Prusament PLA',
+  );
   await expect(
     page.getByText(
       /Меньше материала|Больше возможностей|РАБОЧЕЕ ПРОСТРАНСТВО|Исследовательский проект|прототип интерфейса/,
@@ -49,7 +51,8 @@ test('рабочая область без лишних надписей, пан
   await page.getByRole('button', { name: 'Данные испытаний', exact: true }).click();
   await expect(page.getByText('Испытания напечатанных образцов')).toBeVisible();
   await expectAlignedPanels();
-  await page.getByLabel('Режим расчёта').selectOption('LOAD');
+  await page.getByRole('combobox', { name: 'Режим расчёта', exact: true }).click();
+  await page.getByRole('option', { name: 'Нагрузка по испытаниям образцов', exact: true }).click();
   await expect(page.getByLabel('Максимальная нагрузка, Н')).toBeVisible();
   await expectAlignedPanels();
 });
