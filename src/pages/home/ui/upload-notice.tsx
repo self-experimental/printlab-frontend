@@ -22,7 +22,7 @@ export function UploadNotice(props: UploadNoticeProps) {
             {error ? '!' : '✓'}
           </span>
           <div>
-            <strong>{error ? 'Ошибка загрузки' : 'Модель загружена'}</strong>
+            <strong>{error ? 'Не удалось открыть модель' : 'Модель открыта'}</strong>
             <p>{error || message}</p>
           </div>
           <button type="button" aria-label="Закрыть уведомление" onClick={onClose}>

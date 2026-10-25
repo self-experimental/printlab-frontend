@@ -1,16 +1,18 @@
 import { ModelViewer } from '@/features/model-viewer/model-viewer';
 import type { Model } from '@/features/model-viewer/stl';
-import { formatModelInfo } from '@/features/model-viewer/utils/format-model-info';
+import { formatFileSize, formatModelInfo } from '@/features/model-viewer/utils/format-model-info';
+import { Icon } from '@/shared/ui/icon';
 import styles from '../styles/home-page.module.css';
 
 interface ModelPanelProps {
   model: Model | null;
+  file: File | null;
   fileName: string;
   loading: boolean;
   onRemove: () => void;
 }
 export function ModelPanel(props: ModelPanelProps) {
-  const { model, fileName, loading, onRemove } = props;
+  const { model, file, fileName, loading, onRemove } = props;
   return (
     <section
       className={[styles['home-page__panel'], styles['home-page__model-panel']].join(' ')}
@@ -25,28 +27,38 @@ export function ModelPanel(props: ModelPanelProps) {
         <span className={styles['home-page__file-badge']}>{model ? 'STL' : 'ПРИМЕР'}</span>
       </div>
       <div className={styles['home-page__viewport']} aria-busy={loading}>
-        <details className={styles['home-page__model-info']}>
-          <summary>Информация…</summary>
-          <p>
-            {model
-              ? 'Размеры указаны в единицах STL; единицы измерения в формате не заданы.'
-              : 'Выберите STL-файл через кнопку «Загрузить модель». Поддерживаются ASCII и бинарные STL до 15 МБ.'}
-          </p>
-        </details>
         {model ? (
           <ModelViewer key={fileName} model={model} />
         ) : (
-          <div className={styles['home-page__model-placeholder']}>МОДЕЛЬ</div>
+          <div className={styles['home-page__model-placeholder']} aria-hidden="true" />
         )}
       </div>
       <div className={styles['home-page__model-footer']}>
         <div>
           <strong>{fileName || 'Модель ещё не загружена'}</strong>
           <small>{model ? formatModelInfo(model) : 'ASCII и бинарный STL · до 15 МБ'}</small>
+          {file && (
+            <div className={styles['home-page__saved-model']}>
+              <span>Модель открыта</span>
+              <dl>
+                <div>
+                  <dt>Размер файла</dt>
+                  <dd>{formatFileSize(file.size)}</dd>
+                </div>
+              </dl>
+            </div>
+          )}
+          <p aria-live="polite">{loading ? 'Открываем модель…' : ''}</p>
         </div>
-        {model && (
-          <button type="button" className={styles['home-page__text-button']} onClick={onRemove}>
-            Удалить
+        {file && (
+          <button
+            type="button"
+            className={styles['home-page__remove-button']}
+            onClick={onRemove}
+            disabled={loading}
+          >
+            <Icon name="close" />
+            <span>Убрать из просмотра</span>
           </button>
         )}
       </div>

@@ -2,13 +2,23 @@ import { fileURLToPath, URL } from 'node:url';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vitest/config';
 
+const proxy = {
+  '/api': { target: process.env.API_PROXY_TARGET ?? 'http://127.0.0.1:8080', changeOrigin: true },
+};
+
 export default defineConfig({
   plugins: [react()],
+  optimizeDeps: { include: ['three', 'three/addons/utils/BufferGeometryUtils.js'] },
   resolve: {
     alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
   },
-  server: { port: 5173, strictPort: true },
-  preview: { port: 4173, strictPort: true },
+  server: {
+    port: 5173,
+    strictPort: true,
+    proxy,
+    watch: { ignored: ['**/coverage/**', '**/test-results/**', '**/playwright-report/**'] },
+  },
+  preview: { port: 4173, strictPort: true, proxy },
   build: { sourcemap: false },
   test: {
     environment: 'jsdom',

@@ -46,11 +46,11 @@ describe('STL', () => {
     for (const value of ['NaN', 'Infinity', '1e13']) {
       expect(() =>
         parseStl(ascii(`solid x ${facet.replace('vertex 2', `vertex ${value}`)} endsolid`)),
-      ).toThrow('координаты');
+      ).toThrow('масштаб');
     }
     const buffer = binary();
     new DataView(buffer).setFloat32(96, NaN, true);
-    expect(() => parseStl(buffer)).toThrow('координаты');
+    expect(() => parseStl(buffer)).toThrow('масштаб');
   });
   it('ограничивает размер и число граней', () => {
     expect(() => parseStl(new ArrayBuffer(MAX_FILE_SIZE + 1))).toThrow('15 МБ');

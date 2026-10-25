@@ -1,29 +1,44 @@
-import { experiments } from '@/features/optimization/model/demo-data';
+import type { OptimizationResult } from '@/features/optimization/model/types';
 import styles from '../styles/home-page.module.css';
+const number = new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 2 });
 
-export function ExperimentTable() {
+export function ExperimentTable({ result }: { result: OptimizationResult }) {
   return (
     <div className={styles['home-page__table-wrap']}>
-      <h3>Экспериментальные данные</h3>
+      <h3>Испытанные варианты</h3>
       <table>
-        <caption>Пример данных из Figma</caption>
+        <caption>Результаты испытаний сопоставленного образца</caption>
         <thead>
           <tr>
             <th scope="col">Заполнение, %</th>
-            <th scope="col">Прочность, Н</th>
+            <th scope="col">С запасом, Н</th>
             <th scope="col">Расход, г</th>
             <th scope="col">Время, мин</th>
           </tr>
         </thead>
         <tbody>
-          {experiments.map((row) => (
+          {result.response.experiments.map((row) => (
             <tr
-              key={row[0]}
-              className={row[0] === 40 ? styles['home-page__table-row--selected'] : ''}
+              key={row.id}
+              className={
+                row.id === result.response.selectedExperimentId
+                  ? styles['home-page__table-row--selected']
+                  : ''
+              }
             >
-              {row.map((value, index) => (
-                <td key={index}>{value.toLocaleString('ru-RU')}</td>
-              ))}
+              <td>
+                {number.format(row.infillPercent)}
+                {row.id === result.response.selectedExperimentId && (
+                  <span className={styles['home-page__silent']}> — выбранный вариант</span>
+                )}
+              </td>
+              <td>
+                {row.failureLoadN === null
+                  ? 'Нет данных'
+                  : number.format(row.failureLoadN / result.request.safetyFactor)}
+              </td>
+              <td>{number.format(row.materialConsumptionG)}</td>
+              <td>{number.format(row.printTimeMin)}</td>
             </tr>
           ))}
         </tbody>

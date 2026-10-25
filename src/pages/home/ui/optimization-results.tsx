@@ -1,37 +1,51 @@
-import type { OptimizationRequest } from '@/features/optimization/model/types';
+import type { OptimizationResult } from '@/features/optimization/model/types';
 import { ResultSummary } from './result-summary';
 import { ExperimentChart } from './experiment-chart';
 import { ExperimentTable } from './experiment-table';
 import styles from '../styles/home-page.module.css';
-
 interface OptimizationResultsProps {
-  result: OptimizationRequest | null;
+  result: OptimizationResult | null;
+  loading: boolean;
+  error: string;
 }
-export function OptimizationResults(props: OptimizationResultsProps) {
-  const { result } = props;
+export function OptimizationResults({ result, loading, error }: OptimizationResultsProps) {
   return (
     <section
       className={[styles['home-page__panel'], styles['home-page__results']].join(' ')}
       aria-labelledby="results-heading"
+      aria-busy={loading}
     >
       <div className={styles['home-page__panel-header']}>
         <div>
-          <span className={styles['home-page__step']}>03 / РЕЗУЛЬТАТ</span>
-          <h2 id="results-heading">Результаты оптимизации</h2>
+          <h2 id="results-heading">Результаты подбора</h2>
           <p>
             {result
-              ? 'Рекомендованные параметры на основе экспериментальных данных'
-              : 'Настройте параметры и нажмите «Запустить оптимизацию»'}
+              ? 'По данным физических испытаний'
+              : 'Выберите модель и запустите подбор параметров'}
           </p>
         </div>
-        <span className={styles['home-page__file-badge']}>{result ? 'ДЕМО' : 'ОЖИДАНИЕ'}</span>
       </div>
-      {result ? (
+      {loading ? (
+        <div className={styles['home-page__empty-results']} role="status">
+          <p>Проверяем модель и подбираем параметры…</p>
+        </div>
+      ) : error ? (
+        <div className={styles['home-page__calculation-error']} role="alert">
+          <strong>Не удалось подобрать параметры</strong>
+          <p>{error}</p>
+        </div>
+      ) : result ? (
         <>
           <div className={styles['home-page__result-grid']}>
-            <ResultSummary />
-            <ExperimentChart />
-            <ExperimentTable />
+            <ResultSummary result={result} />
+            <ExperimentChart result={result} />
+            <ExperimentTable result={result} />
+          </div>
+          <div className={styles['home-page__result-notes']}>
+            <p>{result.response.explanation}</p>
+            {result.response.warnings.map((warning) => (
+              <p key={warning}>{warning}</p>
+            ))}
           </div>
         </>
       ) : (
@@ -39,7 +53,7 @@ export function OptimizationResults(props: OptimizationResultsProps) {
           <span aria-hidden="true">↗</span>
           <div>
             <strong>Здесь появится результат</strong>
-            <p>Заполнение, прочность, расход материала и сравнение с экспериментами</p>
+            <p>Заполнение, нагрузка, расход материала и сравнение с испытанными вариантами</p>
           </div>
         </div>
       )}
