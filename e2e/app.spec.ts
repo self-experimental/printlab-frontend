@@ -69,3 +69,20 @@ test('локальный просмотр STL и понятная ошибка �
   await expect(page.getByRole('alert')).toContainText('Не удалось');
   expect(requests).toEqual([]);
 });
+
+test('общая тема сохраняется при перезагрузке, компоненты доступны в обоих оформлениях', async ({
+  page,
+}, testInfo) => {
+  await page.goto('/');
+  await expect(page.getByLabel('Материал', { exact: true })).toHaveValue('prusament-pla');
+  await page.screenshot({ path: testInfo.outputPath('ui-kit-dark.png'), fullPage: true });
+  await page.getByRole('button', { name: 'Включить светлую тему' }).click();
+  await page.reload();
+  await expect(page.getByRole('button', { name: 'Включить тёмную тему' })).toBeVisible();
+  await expect(page.getByLabel('Материал', { exact: true })).toBeEnabled();
+  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+  await page.screenshot({ path: testInfo.outputPath('ui-kit-light.png'), fullPage: true });
+  await page.getByRole('button', { name: 'Включить тёмную тему' }).click();
+  await page.reload();
+  await expect(page.getByRole('button', { name: 'Включить светлую тему' })).toBeVisible();
+});

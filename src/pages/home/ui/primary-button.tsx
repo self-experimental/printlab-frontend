@@ -1,14 +1,8 @@
+import { Button, type ButtonProps } from '@mantine/core';
 import type { ComponentPropsWithoutRef } from 'react';
-import styles from '../styles/home-page.module.css';
 
-type PrimaryButtonProps = ComponentPropsWithoutRef<'button'>;
+type PrimaryButtonProps = ButtonProps & ComponentPropsWithoutRef<'button'>;
 
 export function PrimaryButton({ className = '', type = 'button', ...props }: PrimaryButtonProps) {
-  return (
-    <button
-      {...props}
-      type={type}
-      className={[styles['home-page__primary'], className].join(' ')}
-    />
-  );
+  return <Button {...props} type={type} className={className} />;
 }

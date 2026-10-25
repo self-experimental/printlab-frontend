@@ -63,7 +63,11 @@ test('модель вращается мышью и клавиатурой, ма
   await expect(page.getByText(/Перетаскивайте для вращения|Облегчённый просмотр/)).toHaveCount(0);
   await expect(page.getByText('Информация…', { exact: true })).toHaveCount(0);
   const remove = page.getByRole('button', { name: 'Убрать из просмотра' });
-  await expect(remove).toHaveCSS('background-color', 'rgb(185, 28, 28)');
+  const color = await remove.evaluate((button) => getComputedStyle(button).backgroundColor);
+  const channels = color.match(/[\d.]+/g)?.map(Number);
+  expect(channels).toBeDefined();
+  expect(channels?.[0]).toBeGreaterThan((channels?.[1] ?? 0) * 1.5);
+  expect(channels?.[0]).toBeGreaterThan((channels?.[2] ?? 0) * 1.5);
   expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
 });
 

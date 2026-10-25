@@ -1,3 +1,4 @@
+import { NativeSelect } from '@mantine/core';
 import { env } from '@/shared/config/env';
 import { useHomePage } from './hooks/use-home-page';
 import { HomeHeader } from './ui/home-header';
@@ -26,7 +27,7 @@ export function HomePage() {
     reset,
   } = useHomePage();
   return (
-    <div className={[styles['home-page'], light ? styles['home-page--light'] : ''].join(' ')}>
+    <div className={styles['home-page']}>
       <HomeHeader
         light={light}
         loading={model.loading}
@@ -70,19 +71,18 @@ export function HomePage() {
             onRemove={model.remove}
           />
           <div className={styles['home-page__calculation-panel']}>
-            <label className={styles['home-page__mode']}>
-              Режим расчёта
-              <select
-                aria-label="Режим расчёта"
-                value={mode}
-                onChange={(event) => {
-                  changeMode(event.currentTarget.value === 'LOAD' ? 'LOAD' : 'PRINT');
-                }}
-              >
-                <option value="PRINT">Параметры печати · A1 mini</option>
-                <option value="LOAD">Нагрузка по испытаниям образцов</option>
-              </select>
-            </label>
+            <NativeSelect
+              className={styles['home-page__mode']}
+              label="Режим расчёта"
+              aria-label="Режим расчёта"
+              value={mode}
+              onChange={(event) => {
+                changeMode(event.currentTarget.value === 'LOAD' ? 'LOAD' : 'PRINT');
+              }}
+            >
+              <option value="PRINT">Параметры печати · A1 mini</option>
+              <option value="LOAD">Нагрузка по испытаниям образцов</option>
+            </NativeSelect>
             {mode === 'PRINT' ? (
               <PrintPlanForm
                 loading={model.loading || printPlan.loading}

@@ -1,3 +1,4 @@
+import { Button } from '@mantine/core';
 import { Component, type ReactNode } from 'react';
 
 interface ErrorBoundaryProps {
@@ -22,15 +23,15 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
           <p className="eyebrow">PrintLab</p>
           <h1>Не удалось открыть приложение</h1>
           <p>Попробуйте перезагрузить страницу.</p>
-          <button
-            className="button"
+          <Button
+            mt="md"
             onClick={() => {
               window.location.reload();
             }}
             type="button"
           >
             Перезагрузить
-          </button>
+          </Button>
         </main>
       );
     }

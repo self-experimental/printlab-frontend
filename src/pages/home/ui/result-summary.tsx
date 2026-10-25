@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'react';
+import { RingProgress } from '@mantine/core';
 import type { OptimizationResult } from '@/features/optimization/model/types';
 import styles from '../styles/home-page.module.css';
 
@@ -9,15 +9,17 @@ export function ResultSummary({ result }: { result: OptimizationResult }) {
     <div className={styles['home-page__summary']}>
       <h3>Подобранные параметры</h3>
       <div className={styles['home-page__metrics']}>
-        <div
-          className={styles['home-page__ring']}
-          style={{ '--infill': `${String(r.recommendedInfillPercent)}%` } as CSSProperties}
-        >
-          <strong>
-            {number.format(r.recommendedInfillPercent)}
-            <span>%</span>
-          </strong>
-        </div>
+        <RingProgress
+          size={100}
+          thickness={8}
+          roundCaps
+          sections={[{ value: r.recommendedInfillPercent, color: 'teal' }]}
+          label={
+            <strong style={{ display: 'block', textAlign: 'center' }}>
+              {number.format(r.recommendedInfillPercent)}%
+            </strong>
+          }
+        />
         <div className={styles['home-page__metric-pair']}>
           <div>
             <span className={styles['home-page__metric-label']}>Нагрузка с запасом</span>

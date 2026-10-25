@@ -1,3 +1,4 @@
+import { ActionIcon, Alert, Button } from '@mantine/core';
 import type { Model } from './stl';
 import { useModelViewer } from './hooks/use-model-viewer';
 import { useModelScene } from './hooks/use-model-scene';
@@ -21,15 +22,15 @@ export function ModelViewer({ model }: { model: Model }) {
         {...interaction}
       />
       {error && (
-        <div className={styles['model-viewer__error']} role="alert">
+        <Alert color="red" className={styles['model-viewer__error']}>
           <p>
             Не удалось открыть 3D-просмотр. Попробуйте ещё раз или откройте страницу в другом
             браузере.
           </p>
-          <button type="button" onClick={retry}>
+          <Button variant="light" color="red" mt="sm" type="button" onClick={retry}>
             Попробовать ещё раз
-          </button>
-        </div>
+          </Button>
+        </Alert>
       )}
       <div
         className={styles['model-viewer__controls']}
@@ -37,7 +38,7 @@ export function ModelViewer({ model }: { model: Model }) {
         aria-label="Управление моделью"
       >
         <div className={styles['model-viewer__group']} role="group" aria-label="Вращение модели">
-          <button
+          <ActionIcon
             type="button"
             onClick={() => {
               rotate(-0.2, 0);
@@ -46,8 +47,8 @@ export function ModelViewer({ model }: { model: Model }) {
             title="Повернуть влево"
           >
             <Icon name="left" />
-          </button>
-          <button
+          </ActionIcon>
+          <ActionIcon
             type="button"
             onClick={() => {
               rotate(0.2, 0);
@@ -56,8 +57,8 @@ export function ModelViewer({ model }: { model: Model }) {
             title="Повернуть вправо"
           >
             <Icon name="right" />
-          </button>
-          <button
+          </ActionIcon>
+          <ActionIcon
             type="button"
             onClick={() => {
               rotate(0, -0.2);
@@ -66,8 +67,8 @@ export function ModelViewer({ model }: { model: Model }) {
             title="Наклонить вверх"
           >
             <Icon name="up" />
-          </button>
-          <button
+          </ActionIcon>
+          <ActionIcon
             type="button"
             onClick={() => {
               rotate(0, 0.2);
@@ -76,10 +77,10 @@ export function ModelViewer({ model }: { model: Model }) {
             title="Наклонить вниз"
           >
             <Icon name="down" />
-          </button>
+          </ActionIcon>
         </div>
         <div className={styles['model-viewer__group']} role="group" aria-label="Масштаб модели">
-          <button
+          <ActionIcon
             type="button"
             onClick={() => {
               zoomBy(1 / 1.2);
@@ -88,8 +89,8 @@ export function ModelViewer({ model }: { model: Model }) {
             title="Уменьшить модель"
           >
             <Icon name="minus" />
-          </button>
-          <button
+          </ActionIcon>
+          <ActionIcon
             type="button"
             onClick={() => {
               zoomBy(1.2);
@@ -98,11 +99,11 @@ export function ModelViewer({ model }: { model: Model }) {
             title="Увеличить модель"
           >
             <Icon name="plus" />
-          </button>
+          </ActionIcon>
         </div>
-        <button type="button" onClick={reset} aria-label="Сбросить вид" title="Сбросить вид">
+        <ActionIcon type="button" onClick={reset} aria-label="Сбросить вид" title="Сбросить вид">
           <Icon name="reset" />
-        </button>
+        </ActionIcon>
       </div>
     </div>
   );

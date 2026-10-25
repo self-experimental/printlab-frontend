@@ -1,29 +1,19 @@
 .material-details {
-  margin: 16px 0;
-  padding: 14px;
-  border: 1px solid var(--color-border);
-  border-radius: 12px;
-  color: var(--color-text);
+  margin: 20px 0 0;
   font-size: 13px;
   line-height: 1.6;
 }
-.material-details summary {
-  cursor: pointer;
-  font-weight: 600;
-}
 .material-details p {
-  margin: 10px 0;
+  margin: 12px 0;
 }
 .material-details h3 {
   font-size: 14px;
-  margin: 18px 0 8px;
+  margin: 16px 0 8px;
 }
-.material-details a {
-  color: var(--teal);
-}
-.material-details > small {
+.material-details small {
   display: block;
   margin-top: 8px;
+  color: var(--color-muted);
 }
 .material-details__tests {
   margin-top: 16px;
@@ -31,16 +21,16 @@
 .material-details__properties {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  gap: 16px;
 }
 .material-details__properties div {
   min-width: 0;
 }
 .material-details__properties dt {
-  opacity: 0.75;
+  color: var(--color-muted);
 }
 .material-details__properties dd {
-  margin: 0;
+  margin: 4px 0 0;
   font-weight: 600;
 }
 .material-details__measurements {
@@ -48,11 +38,16 @@
   list-style: none;
 }
 .material-details__measurements li {
-  padding: 8px 0;
+  padding: 12px 0;
   border-bottom: 1px solid var(--color-border);
 }
 .material-details__measurements span,
 .material-details__measurements strong,
 .material-details__measurements small {
   display: block;
+}
+@media (max-width: 380px) {
+  .material-details__properties {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
