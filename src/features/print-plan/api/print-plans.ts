@@ -7,7 +7,7 @@ const errors: Record<string, string> = {
   SLICER_UNAVAILABLE: 'Расчёт печати временно недоступен. Слайсер на сервере ещё не настроен.',
   SLICER_BUSY: 'Сейчас выполняется другой расчёт. Дождитесь его завершения и попробуйте ещё раз.',
   SLICE_TIMEOUT:
-    'На обработку модели требуется слишком много времени. Упростите STL или попробуйте позже.',
+    'Не удалось завершить расчёт за отведённое время. Измените параметры печати или повторите позже.',
   SLICE_FAILED:
     'Не удалось подготовить модель к печати. Проверьте её в Bambu Studio и экспортируйте STL заново.',
   MATERIAL_UNSUPPORTED:
@@ -31,12 +31,16 @@ function valid(v: unknown): v is PrintPlanResponse {
     text(v.materialName) &&
     text(v.engineVersion) &&
     text(v.selectedCandidateId) &&
+    typeof v.plannedCandidateCount === 'number' &&
+    Number.isInteger(v.plannedCandidateCount) &&
+    v.plannedCandidateCount >= 1 &&
+    v.plannedCandidateCount <= 12 &&
     text(v.explanation) &&
     Array.isArray(v.warnings) &&
     v.warnings.every((s: unknown) => typeof s === 'string') &&
     Array.isArray(v.candidates) &&
     v.candidates.length > 0 &&
-    v.candidates.length <= 12 &&
+    v.candidates.length <= v.plannedCandidateCount &&
     v.candidates.every(
       (c: unknown) =>
         record(c) &&
@@ -63,7 +67,7 @@ export async function calculatePrintPlan(
   const body = new FormData();
   body.append('file', file);
   for (const [key, value] of Object.entries(request)) body.append(key, String(value));
-  const timeout = AbortSignal.any([signal, AbortSignal.timeout(60_000)]);
+  const timeout = AbortSignal.any([signal, AbortSignal.timeout(210_000)]);
   let response: Response;
   try {
     response = await fetch('/api/print-plans/analyze-stl', {
@@ -76,7 +80,7 @@ export async function calculatePrintPlan(
     if (signal.aborted) throw cause;
     throw new Error(
       timeout.aborted
-        ? 'Сервер не завершил расчёт за минуту. Попробуйте ещё раз.'
+        ? 'Ответ сервера не получен за отведённое время. Повторите расчёт немного позже.'
         : 'Не удалось связаться с сервером. Проверьте подключение и повторите расчёт.',
       { cause },
     );

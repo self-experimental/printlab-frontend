@@ -31,7 +31,10 @@ export function PrintPlanResults({
       </div>
       {loading ? (
         <div className={styles['home-page__empty-results']} role="status">
-          <p>Готовим модель и сравниваем 6 вариантов печати. Это может занять до минуты…</p>
+          <p>
+            Готовим модель и сравниваем 6 вариантов печати. Для сложной модели это может занять до
+            трёх минут…
+          </p>
         </div>
       ) : error ? (
         <div className={styles['home-page__calculation-error']} role="alert">
@@ -40,6 +43,14 @@ export function PrintPlanResults({
         </div>
       ) : response && selected ? (
         <>
+          {response.candidates.length < response.plannedCandidateCount && (
+            <div className={styles['home-page__partial-result']} role="status">
+              <strong>
+                Сравнили {response.candidates.length} из {response.plannedCandidateCount} вариантов
+              </strong>
+              <p>Остальные не успели рассчитаться. Рекомендация выбрана среди готовых вариантов.</p>
+            </div>
+          )}
           <div className={styles['home-page__print-summary']}>
             <div>
               <span>Оценка времени</span>

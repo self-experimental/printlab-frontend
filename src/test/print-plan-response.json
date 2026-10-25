@@ -5,6 +5,7 @@
   "materialName": "Prusament PLA",
   "engineVersion": "02.08.02.61",
   "selectedCandidateId": "variant-1",
+  "plannedCandidateCount": 6,
   "candidates": [
     {
       "id": "variant-1",
