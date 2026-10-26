@@ -1,6 +1,12 @@
 import { Accordion, Alert, Badge, Loader, Paper, Table } from '@mantine/core';
-import type { PrintPlanResult } from '@/features/print-plan/model/types';
+import type { InfillPattern, PrintPlanResult } from '@/features/print-plan/model/types';
 import styles from '../styles/home-page.module.css';
+const patternLabels: Record<InfillPattern, string> = {
+  GYROID: 'Гироид',
+  RECTILINEAR: 'Прямолинейное',
+  GRID: 'Сетка',
+  CUBIC: 'Кубическое',
+};
 const number = new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 2 });
 
 export function PrintPlanResults({
@@ -77,7 +83,7 @@ export function PrintPlanResults({
             </div>
             <div>
               <span>Тип заполнения</span>
-              <strong>{selected.infillPattern === 'GYROID' ? 'Гироид' : 'Прямолинейное'}</strong>
+              <strong>{patternLabels[selected.infillPattern]}</strong>
             </div>
           </div>
           <div
@@ -145,10 +151,32 @@ export function PrintPlanResults({
             </Table.ScrollContainer>
           </div>
           <div className={styles['home-page__result-notes']}>
-            <p>{response.explanation}</p>
-            {response.warnings.map((warning) => (
-              <p key={warning}>{warning}</p>
-            ))}
+            <section
+              aria-labelledby="recommendations-heading"
+              className={styles['home-page__recommendations']}
+            >
+              <h3 id="recommendations-heading">Рекомендации для детали</h3>
+              {response.recommendation ? (
+                <>
+                  <strong>{response.recommendation.purpose}</strong>
+                  <p>{response.recommendation.summary}</p>
+                  <dl>
+                    {response.recommendation.items.map((item) => (
+                      <div key={item.title}>
+                        <dt>{item.title}</dt>
+                        <dd>{item.text}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                </>
+              ) : (
+                <p>
+                  Выбран вариант с заполнением {selected.infillPercent}%, {selected.perimeters}{' '}
+                  периметрами и слоем {number.format(selected.layerHeightMm)} мм. Для рекомендаций
+                  по назначению выполните новый подбор с описанием детали.
+                </p>
+              )}
+            </section>
             <Accordion variant="contained">
               <Accordion.Item value="calculation">
                 <Accordion.Control>Как получен расчёт</Accordion.Control>
@@ -161,9 +189,24 @@ export function PrintPlanResults({
                     {response.materialName} · Bambu Studio {response.engineVersion}
                   </p>
                   <p>{result.fileName}</p>
+                  {result.request.description && <p>Назначение: {result.request.description}</p>}
+                  {selected.topLayers !== undefined && selected.bottomLayers !== undefined && (
+                    <p>
+                      Верхних слоёв: {selected.topLayers}, нижних: {selected.bottomLayers}
+                    </p>
+                  )}
+                  <p>
+                    Время и расход рассчитаны слайсером. Рекомендации по назначению не подтверждают
+                    допустимую нагрузку детали.
+                  </p>
+                  {response.warnings.map((warning) => (
+                    <p key={warning}>{warning}</p>
+                  ))}
                   <p>
                     Поддержки:{' '}
-                    {result.request.supportMode === 'AUTO' ? 'автоматические' : 'отключены'}
+                    {(selected.supportMode ?? result.request.supportMode ?? 'AUTO') === 'AUTO'
+                      ? 'автоматические'
+                      : 'отключены'}
                   </p>
                 </Accordion.Panel>
               </Accordion.Item>

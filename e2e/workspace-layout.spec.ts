@@ -7,9 +7,7 @@ test('рабочая область без лишних надписей, пан
 }, testInfo) => {
   await page.route('**/api/materials', (route) => route.fulfill({ json: catalog }));
   await page.goto('/');
-  await expect(page.getByRole('combobox', { name: 'Материал', exact: true })).toHaveValue(
-    'Prusament PLA',
-  );
+  await expect(page.getByRole('combobox', { name: 'Материал', exact: true })).toBeEnabled();
   await expect(
     page.getByText(
       /Меньше материала|Больше возможностей|РАБОЧЕЕ ПРОСТРАНСТВО|Исследовательский проект|прототип интерфейса/,
@@ -45,6 +43,10 @@ test('рабочая область без лишних надписей, пан
   await expectAlignedPanels();
   await page.screenshot({ path: testInfo.outputPath('workspace-aligned.png'), fullPage: true });
 
+  await page.getByRole('button', { name: 'Настроить параметры вручную' }).click();
+  await expectAlignedPanels();
+  await page.getByRole('combobox', { name: 'Материал', exact: true }).click();
+  await page.getByRole('option', { name: 'Prusament PLA', exact: true }).click();
   await page.getByRole('button', { name: 'Свойства материала и источник' }).click();
   await expect(page.getByText('Плотность', { exact: true })).toBeVisible();
   await expectAlignedPanels();

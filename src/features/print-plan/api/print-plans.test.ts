@@ -27,6 +27,7 @@ it('отправляет один файл и параметры и читает
   expect((options.body as FormData).get('minimumInfillPercent')).toBe('15');
 });
 it.each([
+  [400, 'INVALID_PRINT_INPUT', '2000 символов'],
   [429, 'SLICER_BUSY', 'другой расчёт'],
   [503, 'SLICER_UNAVAILABLE', 'не настроен'],
   [504, 'SLICE_TIMEOUT', 'отведённое время'],
@@ -55,6 +56,9 @@ it.each([
 it.each([
   null,
   {},
+  { ...fixture, recommendation: {} },
+  { ...fixture, recommendation: { ...fixture.recommendation, items: [] } },
+  { ...fixture, recommendation: { ...fixture.recommendation, source: 'UNTRUSTED' } },
   { ...fixture, candidates: [] },
   { ...fixture, plannedCandidateCount: 0 },
   { ...fixture, plannedCandidateCount: 2 },
@@ -111,4 +115,14 @@ it('дожидается расчёта дольше минуты без пов�
   await vi.advanceTimersByTimeAsync(70_000);
   await result;
   expect(fetch).toHaveBeenCalledTimes(1);
+});
+
+it('поддерживает ответ предыдущего бэкенда без рекомендаций во время обновления', async () => {
+  const legacy = Object.fromEntries(
+    Object.entries(fixture).filter(([key]) => key !== 'recommendation'),
+  );
+  vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(JSON.stringify(legacy))));
+  expect(
+    await calculatePrintPlan(file, { description: 'Деталь' }, new AbortController().signal),
+  ).toEqual(legacy);
 });

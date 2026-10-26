@@ -81,9 +81,7 @@ test('общая тема сохраняется при перезагрузке
   page,
 }, testInfo) => {
   await page.goto('/');
-  await expect(page.getByRole('combobox', { name: 'Материал', exact: true })).toHaveValue(
-    'Prusament PLA',
-  );
+  await expect(page.getByRole('combobox', { name: 'Материал', exact: true })).toBeEnabled();
   await page.screenshot({ path: testInfo.outputPath('ui-kit-dark.png'), fullPage: true });
   await page.getByRole('button', { name: 'Включить светлую тему' }).click();
   await page.reload();

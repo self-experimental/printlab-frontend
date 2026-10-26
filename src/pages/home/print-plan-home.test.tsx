@@ -48,9 +48,11 @@ it('по умолчанию подбирает печать A1 mini, не отп
   expect(screen.getByRole('button', { name: 'Расчёт готов' })).toBeDisabled();
   const [, options] = vi.mocked(fetch).mock.calls[0] as [string, RequestInit];
   expect((options.body as FormData).get('file')).toBe(file);
-  expect((options.body as FormData).get('materialProfileId')).toBe('prusament-pla');
+  expect((options.body as FormData).has('materialProfileId')).toBe(false);
+  expect((options.body as FormData).has('minimumPerimeters')).toBe(false);
   await user.click(screen.getByText('Как получен расчёт'));
   expect(screen.getByText(/Prusament PLA · Bambu Studio/)).toBeVisible();
+  await user.click(screen.getByRole('button', { name: 'Настроить параметры вручную' }));
   await user.click(screen.getByRole('combobox', { name: 'Приоритет подбора' }));
   await user.click(screen.getByRole('option', { name: 'Минимальное время печати' }));
   expect(screen.queryByRole('table')).not.toBeInTheDocument();
@@ -92,6 +94,7 @@ it('отменяет устаревший запрос при смене пар�
   expect(fetch).toHaveBeenCalledTimes(1);
   expect(screen.getByText(/Готовим модель и сравниваем/)).toBeVisible();
   const options = vi.mocked(fetch).mock.calls[0]?.[1];
+  await user.click(screen.getByRole('button', { name: 'Настроить параметры вручную' }));
   await user.click(screen.getByRole('combobox', { name: 'Качество поверхности' }));
   await user.click(screen.getByRole('option', { name: 'Быстрое · слой до 0,28 мм' }));
   expect(options?.signal?.aborted).toBe(true);
@@ -145,7 +148,9 @@ it('числовые поля сбрасывают результат при ш�
   await screen.findByText('part.stl');
   await user.click(screen.getByRole('button', { name: 'Запустить оптимизацию' }));
   await screen.findByRole('table');
+  await user.click(screen.getByRole('button', { name: 'Настроить параметры вручную' }));
   const perimeters = screen.getByLabelText('Минимум периметров');
+  await user.type(perimeters, '2');
   await user.click(perimeters);
   await user.keyboard('{ArrowUp}');
   expect(perimeters).toHaveValue('3');
@@ -158,4 +163,43 @@ it('числовые поля сбрасывают результат при ш�
   const options = vi.mocked(fetch).mock.calls[1]?.[1];
   expect((options?.body as FormData).get('minimumPerimeters')).toBe('3');
   expect((options?.body as FormData).get('maxPrintTimeMin')).toBe('1500.5');
+});
+
+it('передаёт описание по кнопке и сбрасывает рекомендации после редактирования', async () => {
+  const user = userEvent.setup();
+  render(<HomePage />);
+  upload();
+  await screen.findByText('part.stl');
+  await user.type(
+    screen.getByRole('textbox', { name: 'Для чего нужна деталь?' }),
+    'Держатель наушников',
+  );
+  expect(fetch).not.toHaveBeenCalled();
+  await user.click(screen.getByRole('button', { name: 'Запустить оптимизацию' }));
+  await screen.findByRole('heading', { name: 'Рекомендации для детали' });
+  expect(screen.getByText(response.recommendation.summary)).toBeVisible();
+  const options = vi.mocked(fetch).mock.calls[0]?.[1];
+  expect((options?.body as FormData).get('description')).toBe('Держатель наушников');
+  expect(screen.getByRole('button', { name: 'Расчёт готов' })).toBeDisabled();
+  await user.type(screen.getByRole('textbox', { name: 'Для чего нужна деталь?' }), ' под столом');
+  expect(
+    screen.queryByRole('heading', { name: 'Рекомендации для детали' }),
+  ).not.toBeInTheDocument();
+  expect(fetch).toHaveBeenCalledTimes(1);
+});
+
+it('возвращает выбранный материал на автоматический подбор без лишнего запроса', async () => {
+  const user = userEvent.setup();
+  render(<HomePage />);
+  upload();
+  await screen.findByText('part.stl');
+  await user.click(screen.getByRole('combobox', { name: 'Материал' }));
+  await user.click(screen.getByRole('option', { name: 'Prusament PETG' }));
+  await user.click(screen.getByRole('combobox', { name: 'Материал' }));
+  await user.click(screen.getByRole('option', { name: 'Подобрать по описанию' }));
+  expect(fetch).not.toHaveBeenCalled();
+  await user.click(screen.getByRole('button', { name: 'Запустить оптимизацию' }));
+  await screen.findByRole('table');
+  const options = vi.mocked(fetch).mock.calls[0]?.[1];
+  expect((options?.body as FormData).has('materialProfileId')).toBe(false);
 });

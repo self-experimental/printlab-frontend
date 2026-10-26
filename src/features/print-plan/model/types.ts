@@ -1,19 +1,33 @@
+export type InfillPattern = 'GYROID' | 'RECTILINEAR' | 'GRID' | 'CUBIC';
 export interface PrintPlanRequest {
-  materialProfileId: string;
-  priority: 'MIN_MATERIAL' | 'MIN_TIME' | 'BALANCED';
-  layerHeightMm: number;
-  minimumInfillPercent: number;
-  minimumPerimeters: number;
-  supportMode: 'AUTO' | 'NONE';
-  maxPrintTimeMin: number;
-  maxMaterialConsumptionG: number;
+  description?: string;
+  materialProfileId?: string;
+  priority?: 'MIN_MATERIAL' | 'MIN_TIME' | 'BALANCED';
+  layerHeightMm?: number;
+  minimumInfillPercent?: number;
+  minimumPerimeters?: number;
+  supportMode?: 'AUTO' | 'NONE';
+  infillPattern?: InfillPattern;
+  topLayers?: number;
+  bottomLayers?: number;
+  maxPrintTimeMin?: number;
+  maxMaterialConsumptionG?: number;
+}
+export interface PartRecommendation {
+  source: 'LOCAL_MODEL' | 'RULES' | 'FALLBACK' | 'DEFAULT';
+  purpose: string;
+  summary: string;
+  items: { title: string; text: string }[];
 }
 export interface PrintCandidate {
   id: string;
   infillPercent: number;
   perimeters: number;
   layerHeightMm: number;
-  infillPattern: 'GYROID' | 'RECTILINEAR';
+  infillPattern: InfillPattern;
+  topLayers?: number;
+  bottomLayers?: number;
+  supportMode?: 'AUTO' | 'NONE';
   estimatedPrintTimeMin: number;
   estimatedMaterialG: number;
   meetsConstraints: boolean;
@@ -29,6 +43,7 @@ export interface PrintPlanResponse {
   candidates: PrintCandidate[];
   warnings: string[];
   explanation: string;
+  recommendation?: PartRecommendation;
 }
 export interface PrintPlanResult {
   request: PrintPlanRequest;

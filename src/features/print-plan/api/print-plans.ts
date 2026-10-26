@@ -3,7 +3,7 @@ import type { PrintPlanRequest, PrintPlanResponse } from '../model/types';
 
 const errors: Record<string, string> = {
   INVALID_PRINT_INPUT:
-    'Проверьте параметры печати: выберите качество поверхности, заполнение от 5 до 80% и минимум от 2 до 6 периметров.',
+    'Проверьте описание детали (до 2000 символов) и указанные вручную параметры печати.',
   SLICER_UNAVAILABLE: 'Расчёт печати временно недоступен. Слайсер на сервере ещё не настроен.',
   SLICER_BUSY: 'Сейчас выполняется другой расчёт. Дождитесь его завершения и попробуйте ещё раз.',
   SLICE_TIMEOUT:
@@ -36,6 +36,7 @@ function valid(v: unknown): v is PrintPlanResponse {
     v.plannedCandidateCount >= 1 &&
     v.plannedCandidateCount <= 12 &&
     text(v.explanation) &&
+    (v.recommendation === undefined || validRecommendation(v.recommendation)) &&
     Array.isArray(v.warnings) &&
     v.warnings.every((s: unknown) => typeof s === 'string') &&
     Array.isArray(v.candidates) &&
@@ -48,7 +49,7 @@ function valid(v: unknown): v is PrintPlanResponse {
         positive(c.infillPercent) &&
         c.infillPercent <= 100 &&
         positive(c.perimeters) &&
-        (c.infillPattern === 'GYROID' || c.infillPattern === 'RECTILINEAR') &&
+        ['GYROID', 'RECTILINEAR', 'GRID', 'CUBIC'].includes(String(c.infillPattern)) &&
         positive(c.layerHeightMm) &&
         positive(c.estimatedPrintTimeMin) &&
         positive(c.estimatedMaterialG) &&
@@ -59,6 +60,18 @@ function valid(v: unknown): v is PrintPlanResponse {
     )
   );
 }
+function validRecommendation(v: unknown): boolean {
+  return (
+    record(v) &&
+    ['LOCAL_MODEL', 'RULES', 'FALLBACK', 'DEFAULT'].includes(String(v.source)) &&
+    text(v.purpose) &&
+    text(v.summary) &&
+    Array.isArray(v.items) &&
+    v.items.length > 0 &&
+    v.items.length <= 12 &&
+    v.items.every((item: unknown) => record(item) && text(item.title) && text(item.text))
+  );
+}
 export async function calculatePrintPlan(
   file: File,
   request: PrintPlanRequest,
@@ -66,7 +79,9 @@ export async function calculatePrintPlan(
 ): Promise<PrintPlanResponse> {
   const body = new FormData();
   body.append('file', file);
-  for (const [key, value] of Object.entries(request)) body.append(key, String(value));
+  for (const [key, value] of Object.entries(request)) {
+    if (value !== undefined) body.append(key, String(value));
+  }
   const timeout = AbortSignal.any([signal, AbortSignal.timeout(210_000)]);
   let response: Response;
   try {
