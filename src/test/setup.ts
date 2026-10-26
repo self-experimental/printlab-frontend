@@ -8,6 +8,8 @@ vi.mock('three', async (importOriginal) => {
   return { ...original, WebGLRenderer: MockWebGLRenderer };
 });
 
+Object.defineProperty(document, 'fonts', { configurable: true, value: new EventTarget() });
+
 Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', {
   configurable: true,
   value: () => {

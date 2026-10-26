@@ -1,0 +1,122 @@
+{
+  "printerName": "Bambu Lab A1 mini",
+  "nozzleDiameterMm": 0.4,
+  "bedType": "Текстурированная PEI-пластина",
+  "materialName": "Prusament PLA",
+  "engineVersion": "02.08.02.61",
+  "selectedCandidateId": "variant-1",
+  "plannedCandidateCount": 6,
+  "candidates": [
+    {
+      "id": "variant-1",
+      "infillPercent": 20,
+      "perimeters": 3,
+      "layerHeightMm": 0.2,
+      "infillPattern": "GYROID",
+      "estimatedPrintTimeMin": 19.74922892252604,
+      "estimatedMaterialG": 4.703205108642578,
+      "meetsConstraints": true,
+      "topLayers": 5,
+      "bottomLayers": 4,
+      "supportMode": "AUTO"
+    },
+    {
+      "id": "variant-2",
+      "infillPercent": 20,
+      "perimeters": 3,
+      "layerHeightMm": 0.16,
+      "infillPattern": "GYROID",
+      "estimatedPrintTimeMin": 22.5220703125,
+      "estimatedMaterialG": 4.620090484619141,
+      "meetsConstraints": true,
+      "topLayers": 5,
+      "bottomLayers": 4,
+      "supportMode": "AUTO"
+    },
+    {
+      "id": "variant-3",
+      "infillPercent": 20,
+      "perimeters": 4,
+      "layerHeightMm": 0.2,
+      "infillPattern": "GYROID",
+      "estimatedPrintTimeMin": 20.00567626953125,
+      "estimatedMaterialG": 5.279253005981445,
+      "meetsConstraints": true,
+      "topLayers": 5,
+      "bottomLayers": 4,
+      "supportMode": "AUTO"
+    },
+    {
+      "id": "variant-4",
+      "infillPercent": 30,
+      "perimeters": 3,
+      "layerHeightMm": 0.2,
+      "infillPattern": "GYROID",
+      "estimatedPrintTimeMin": 20.974609375,
+      "estimatedMaterialG": 5.306365489959717,
+      "meetsConstraints": true,
+      "topLayers": 5,
+      "bottomLayers": 4,
+      "supportMode": "AUTO"
+    },
+    {
+      "id": "variant-5",
+      "infillPercent": 30,
+      "perimeters": 4,
+      "layerHeightMm": 0.16,
+      "infillPattern": "GYROID",
+      "estimatedPrintTimeMin": 24.34427693684896,
+      "estimatedMaterialG": 5.712115287780762,
+      "meetsConstraints": true,
+      "topLayers": 5,
+      "bottomLayers": 4,
+      "supportMode": "AUTO"
+    },
+    {
+      "id": "variant-6",
+      "infillPercent": 40,
+      "perimeters": 4,
+      "layerHeightMm": 0.2,
+      "infillPattern": "GYROID",
+      "estimatedPrintTimeMin": 22.40439656575521,
+      "estimatedMaterialG": 6.192641735076904,
+      "meetsConstraints": true,
+      "topLayers": 5,
+      "bottomLayers": 4,
+      "supportMode": "AUTO"
+    }
+  ],
+  "warnings": [],
+  "explanation": "Для повседневного применения учитываем целостность оболочки и экономичность печати.",
+  "recommendation": {
+    "source": "RULES",
+    "purpose": "Деталь для повседневного использования",
+    "summary": "Для повседневного применения учитываем целостность оболочки и экономичность печати.",
+    "items": [
+      {
+        "title": "Заполнение",
+        "text": "20% · Гироид. Плотность и рисунок выбраны по назначению; время и расход проверены слайсером."
+      },
+      {
+        "title": "Стенки",
+        "text": "Стенок: 3. Оболочка подобрана под выбранный сценарий использования."
+      },
+      {
+        "title": "Высота слоя",
+        "text": "0,2 мм. Выбран компромисс детализации поверхности и времени печати."
+      },
+      {
+        "title": "Верх и низ",
+        "text": "Верхних слоёв: 5, нижних: 4. Сплошные слои закрывают оболочку детали."
+      },
+      {
+        "title": "Материал",
+        "text": "Prusament PLA. Выбран базовый совместимый материал. Для нагрева, улицы или химической среды уточните материал вручную."
+      },
+      {
+        "title": "Поддержки",
+        "text": "Слайсер определяет необходимость поддержек по геометрии модели."
+      }
+    ]
+  }
+}
