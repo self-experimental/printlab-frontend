@@ -42,6 +42,7 @@ export function PrintPlanForm({
         <Textarea
           label="Для чего нужна деталь?"
           name="description"
+          size="md"
           autosize
           minRows={3}
           maxRows={7}
